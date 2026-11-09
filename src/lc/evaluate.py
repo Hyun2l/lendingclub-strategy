@@ -29,6 +29,8 @@ def summarize(d, approve, fee=0.01):
     a = np.asarray(approve, bool)
     c = cohort_irr(d, a, fee)
     ex = c['irr'] - c['tb']
+    le = (returns.reinvested_return(d, d['tb']) - d['tb']).to_numpy()[a]
+    tail = np.sort(le)[:max(1, int(0.05 * len(le)))] if len(le) else np.array([np.nan])
     sd = ex.std(ddof=1)
     return {
         '승인비율': a.mean(),
@@ -40,4 +42,6 @@ def summarize(d, approve, fee=0.01):
         '최저_코호트IRR': c['irr'].min(),
         '코호트_Sharpe': ex.mean() / sd if sd > 0 else np.nan,
         '국채이하_코호트수': int((ex < 0).sum()),
+        '승인_부도율': d['bad'].to_numpy()[a].mean() if a.any() else np.nan,
+        '하위5%_평균(CVaR)': tail.mean(),
     }

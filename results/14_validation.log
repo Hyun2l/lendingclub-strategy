@@ -1,0 +1,99 @@
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2013 완료
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2014 완료
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2015 완료
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2016 완료
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2017 완료
+/Users/hyun/Desktop/learningClub/scripts/14_validate_methods.py:103: UserWarning: obj.round has no effect with datetime, timedelta, or period dtypes. Use obj.dt.round(...) instead.
+  B.round(6).to_csv(RESULTS / '14_validation_cohorts.csv', index=False)
+       점수        구간  발행월 수    선별 가치   95% 하한   95% 상한
+     기대수익 2013~2016     48  0.01027  0.00949  0.01117
+     기대수익   2017 보류     12  0.01222  0.01044  0.01410
+기대수익 라벨섞음 2013~2016     48  0.00006 -0.00239  0.00246
+기대수익 라벨섞음   2017 보류     12 -0.01926 -0.02580 -0.01308
+     부도확률 2013~2016     48  0.00218  0.00103  0.00325
+     부도확률   2017 보류     12  0.02002  0.01282  0.02702
+              mean      min      max
+종류   연도                             
+기대수익 2013  0.01189  0.01158  0.01251
+     2014  0.01024  0.00976  0.01077
+     2015  0.00772  0.00716  0.00814
+     2016  0.01124  0.01077  0.01202
+     2017  0.01222  0.01155  0.01329
+부도확률 2013 -0.00280 -0.00472 -0.00138
+     2014  0.00095  0.00070  0.00111
+     2015  0.00429  0.00422  0.00433
+     2016  0.00626  0.00588  0.00656
+     2017  0.02002  0.01954  0.02042
+                     등급 차이    등급 배분    등급 선별  등급 상호작용    등급 잔차  세부등급 차이  세부등급 배분  세부등급 선별  세부등급 상호작용  세부등급 잔차
+종류           연도                                                                                              
+라벨섞음         2013  0.01165  0.01014  0.00302 -0.00177  0.00026  0.01165  0.01097  0.00038    0.00003  0.00026
+             2014  0.00524  0.00385  0.00276 -0.00157  0.00020  0.00524  0.00435  0.00107   -0.00043  0.00025
+             2015 -0.00330 -0.00358  0.00051 -0.00029  0.00006 -0.00330 -0.00348  0.00017   -0.00009  0.00010
+             2016 -0.00444 -0.00430 -0.00055  0.00034  0.00007 -0.00444 -0.00445  0.00137   -0.00144  0.00009
+             2017 -0.01133 -0.01137 -0.00006  0.00001  0.00009 -0.01133 -0.01140  0.00220   -0.00233  0.00020
+실제 모델(시드 평균) 2013  0.01183  0.00806  0.00366 -0.00014  0.00025  0.01183  0.00927  0.00317   -0.00087  0.00026
+             2014  0.00801  0.00012  0.00872 -0.00067 -0.00015  0.00801 -0.00008  0.00899   -0.00078 -0.00012
+             2015  0.00730  0.00103  0.00709 -0.00060 -0.00022  0.00730  0.00131  0.00689   -0.00070 -0.00021
+             2016  0.01111  0.00189  0.01123 -0.00164 -0.00037  0.01111  0.00231  0.01114   -0.00198 -0.00036
+             2017  0.01416 -0.00341  0.01701  0.00067 -0.00010  0.01416 -0.00361  0.01641    0.00141 -0.00004
+무작위끼리 잡음(연도별) {2013: -5e-05, 2014: -0.00113, 2015: -0.00021, 2016: 0.00064, 2017: -0.00108}

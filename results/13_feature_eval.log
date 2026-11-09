@@ -1,0 +1,155 @@
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2013 기본(시드0) 0.6226 0.0119
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2013 기본(시드1) 0.6321 0.011
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2013 +노이즈 0.622 0.01175
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2013 +상환부담(pti,lti) 0.6198 0.01186
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2013 +신용이력개월 0.6273 0.01244
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2013 +근속연수 0.6198 0.01168
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2013 +우편번호부도율 0.6195 0.01185
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2013 +FICO평균(대조군) 0.6215 0.01204
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2013 +전체후보 0.6326 0.01244
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2014 기본(시드0) 0.6621 0.01027
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2014 기본(시드1) 0.6569 0.00946
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2014 +노이즈 0.6602 0.01019
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2014 +상환부담(pti,lti) 0.6614 0.0103
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2014 +신용이력개월 0.6614 0.01042
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2014 +근속연수 0.6619 0.01063
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2014 +우편번호부도율 0.6597 0.0098
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2014 +FICO평균(대조군) 0.6607 0.00988
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2014 +전체후보 0.6606 0.01041
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2015 기본(시드0) 0.6702 0.008
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2015 기본(시드1) 0.6694 0.00773
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2015 +노이즈 0.663 0.0081
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2015 +상환부담(pti,lti) 0.6632 0.00811
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2015 +신용이력개월 0.6675 0.00795
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2015 +근속연수 0.6712 0.00759
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2015 +우편번호부도율 0.6656 0.00777
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2015 +FICO평균(대조군) 0.664 0.00794
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2015 +전체후보 0.6684 0.00766
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2016 기본(시드0) 0.6825 0.01174
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2016 기본(시드1) 0.6811 0.01157
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2016 +노이즈 0.6817 0.01154
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2016 +상환부담(pti,lti) 0.6826 0.01139
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2016 +신용이력개월 0.6815 0.012
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2016 +근속연수 0.6827 0.01187
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2016 +우편번호부도율 0.682 0.01238
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2016 +FICO평균(대조군) 0.6818 0.0117
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2016 +전체후보 0.6814 0.01231
+  연도             피처    AUC  선별 가치  상위 50% 초과 IRR  등급 안 선별 효과
+2013        기본(시드0) 0.6226 0.0119         0.0850      0.0040
+2013        기본(시드1) 0.6321 0.0110         0.0845      0.0027
+2013           +노이즈 0.6220 0.0118         0.0858      0.0047
+2013 +상환부담(pti,lti) 0.6198 0.0119         0.0854      0.0044
+2013        +신용이력개월 0.6273 0.0124         0.0860      0.0051
+2013          +근속연수 0.6198 0.0117         0.0854      0.0045
+2013       +우편번호부도율 0.6195 0.0118         0.0856      0.0045
+2013   +FICO평균(대조군) 0.6215 0.0120         0.0853      0.0042
+2013          +전체후보 0.6326 0.0124         0.0859      0.0050
+2014        기본(시드0) 0.6621 0.0103         0.0622      0.0078
+2014        기본(시드1) 0.6569 0.0095         0.0624      0.0079
+2014           +노이즈 0.6602 0.0102         0.0628      0.0085
+2014 +상환부담(pti,lti) 0.6614 0.0103         0.0627      0.0085
+2014        +신용이력개월 0.6614 0.0104         0.0627      0.0087
+2014          +근속연수 0.6619 0.0106         0.0627      0.0088
+2014       +우편번호부도율 0.6597 0.0098         0.0627      0.0084
+2014   +FICO평균(대조군) 0.6607 0.0099         0.0629      0.0087
+2014          +전체후보 0.6606 0.0104         0.0626      0.0087
+2015        기본(시드0) 0.6702 0.0080         0.0427      0.0067
+2015        기본(시드1) 0.6694 0.0077         0.0423      0.0064
+2015           +노이즈 0.6630 0.0081         0.0428      0.0070
+2015 +상환부담(pti,lti) 0.6632 0.0081         0.0430      0.0073
+2015        +신용이력개월 0.6675 0.0079         0.0427      0.0068
+2015          +근속연수 0.6712 0.0076         0.0426      0.0066
+2015       +우편번호부도율 0.6656 0.0078         0.0425      0.0066
+2015   +FICO평균(대조군) 0.6640 0.0079         0.0427      0.0068
+2015          +전체후보 0.6684 0.0077         0.0428      0.0068
+2016        기본(시드0) 0.6825 0.0117         0.0420      0.0099
+2016        기본(시드1) 0.6811 0.0116         0.0416      0.0095
+2016           +노이즈 0.6817 0.0115         0.0420      0.0100
+2016 +상환부담(pti,lti) 0.6826 0.0114         0.0411      0.0088
+2016        +신용이력개월 0.6815 0.0120         0.0420      0.0100
+2016          +근속연수 0.6827 0.0119         0.0421      0.0100
+2016       +우편번호부도율 0.6820 0.0124         0.0420      0.0101
+2016   +FICO평균(대조군) 0.6818 0.0117         0.0420      0.0101
+2016          +전체후보 0.6814 0.0123         0.0422      0.0103
+            피처  AUC 평균   AUC 변화  선별 가치 평균  선별 가치 변화  개선 연도 수  등급 안 선별 변화
+       기본(시드0) 0.65934  0.00000   0.01048   0.00000        0     0.00000
+       기본(시드1) 0.65987  0.00053   0.00994  -0.00054        0    -0.00049
+          +노이즈 0.65674 -0.00260   0.01039  -0.00008        1     0.00045
++상환부담(pti,lti) 0.65676 -0.00257   0.01041  -0.00006        2     0.00015
+       +신용이력개월 0.65941  0.00008   0.01070   0.00023        3     0.00055
+         +근속연수 0.65890 -0.00044   0.01044  -0.00003        2     0.00039
+      +우편번호부도율 0.65672 -0.00262   0.01045  -0.00003        1     0.00026
+  +FICO평균(대조군) 0.65699 -0.00235   0.01039  -0.00009        1     0.00034
+         +전체후보 0.66076  0.00142   0.01070   0.00023        3     0.00058
