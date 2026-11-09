@@ -1,0 +1,152 @@
+\chapter{모델: 부도확률에서 기대수익까지}
+
+모델이 하는 일은 하나다. 대출의 특성 $x$를 받아 부도확률 $p=P(\text{부도}\mid x)$를 내는 것. 그 $p$를 금리, 손실률, 국채와 합쳐 \textbf{기대수익 점수}를 만들고(\S5.6), 점수로 승인한다.
+
+\section{Logistic regression}
+\textbf{질문.} 특성의 가중합 $z=\beta_0+\beta^\top x$는 $-\infty$에서 $+\infty$까지 아무 값이나 된다. 이걸 0과 1 사이 확률로 바꾸려면?
+
+조건은 세 가지다: $z$가 클수록 확률이 커지고, $z\to-\infty$면 0, $z\to+\infty$면 1. 이를 만족하는 가장 단순한 S자 함수가 sigmoid다.
+\[
+p=\sigma(z)=\frac{1}{1+e^{-z}},\qquad \ln\frac{p}{1-p}=z .
+\]
+오른쪽 식이 핵심이다. \textbf{log-odds}가 특성의 선형식이다. 계수 $\beta_j$는 ``$x_j$가 1 늘 때 log-odds가 $\beta_j$ 는다''로 읽는다.
+
+\begin{workout}[sigmoid에 숫자 넣기]
+\Use{sigmoid, log-odds(이 절)}
+\Step{1} 예시: $z=-2+0.5x$, $x$는 ``최근 6개월 신규 계좌 수''라 하자.
+\Step{2} $x=0$: $z=-2$, $p=1/(1+e^{2})=0.119$. \Concept{sigmoid}
+\Step{3} $x=2$: $z=-1$, $p=1/(1+e^{1})=0.269$.
+\Step{4} $x=4$: $z=0$, $p=0.5$.
+\Ans{계좌 2개 늘 때마다 odds가 $e^{1}=2.72$배가 된다. 확률 증가폭은 일정하지 않다(0.12 \ensuremath{\to} 0.27 \ensuremath{\to} 0.50).}
+\Verify{\ft{checks.py} 13번.}
+\end{workout}
+
+학습은 \textbf{log loss}(교차 엔트로피) $-\frac1n\sum[y_i\ln p_i+(1-y_i)\ln(1-p_i)]$를 최소화한다. 이 손실은 ``확률을 정직하게 말하면'' 가장 작아지므로(proper scoring rule), 로지스틱의 확률은 수준이 대체로 잘 맞는다.
+
+\section{규제: Ridge, Lasso, Elastic Net}
+변수가 100개 넘고 서로 겹치면(순위상관 0.9 이상 12쌍), 로지스틱은 학습 데이터의 우연까지 외운다. 계수 크기에 벌점을 주면 막을 수 있다.
+\[
+\min_\beta\ \text{log loss}+\lambda\cdot\text{벌점}(\beta),\qquad
+\text{Ridge: }\|\beta\|_2^2,\quad \text{Lasso: }\|\beta\|_1,\quad \text{EN: }\alpha\|\beta\|_1+(1-\alpha)\|\beta\|_2^2 .
+\]
+scikit-learn은 $\lambda$ 대신 $C=1/\lambda$를 쓴다. $C$가 작을수록 규제가 세다.
+
+\begin{figure}[H]\centering
+\begin{tikzpicture}[scale=0.9,font=\small]
+\begin{scope}
+\draw[-{Stealth}] (-2,0)--(2.4,0) node[right]{$\beta_1$}; \draw[-{Stealth}] (0,-2)--(0,2.4) node[above]{$\beta_2$};
+\draw[thick] (1.2,0)--(0,1.2)--(-1.2,0)--(0,-1.2)--cycle;
+\foreach \s in {0.6,1.0,1.4} \draw[black!50,dashed,rotate around={30:(1.9,1.6)}] (1.9,1.6) ellipse ({\s*1.1} and {\s*0.55});
+\fill (0,1.2) circle (2pt) node[left]{해: $\beta_1=0$};
+\node at (0,-2.5) {Lasso: 모서리에 닿아 0이 생김};
+\end{scope}
+\begin{scope}[xshift=6.5cm]
+\draw[-{Stealth}] (-2,0)--(2.4,0) node[right]{$\beta_1$}; \draw[-{Stealth}] (0,-2)--(0,2.4) node[above]{$\beta_2$};
+\draw[thick] (0,0) circle (1.2);
+\foreach \s in {0.6,1.0,1.4} \draw[black!50,dashed,rotate around={30:(1.9,1.6)}] (1.9,1.6) ellipse ({\s*1.1} and {\s*0.55});
+\fill (0.75,0.94) circle (2pt) node[above left=1pt]{해};
+\node at (0,-2.5) {Ridge: 둥글어서 0이 잘 안 생김};
+\end{scope}
+\end{tikzpicture}
+\caption{벌점의 모양. 점선은 손실의 등고선, 굵은 선은 허용 영역. 등고선이 영역에 처음 닿는 점이 해다.}
+\end{figure}
+
+\begin{keybox}[L1과 L2]
+Ridge는 모든 계수를 조금씩 줄이고, Lasso는 덜 중요한 계수를 \textbf{정확히 0}으로 만들어 변수를 고른다. Elastic Net은 둘을 섞어, 서로 겹치는 변수 묶음을 함께 남긴다.
+\Intuit{Ridge는 모두의 월급을 10\% 깎고, Lasso는 몇 명을 해고한다.}
+\end{keybox}
+
+\paragraph{$C$는 어떻게 골랐나.} 평가 연도를 보면 안 되므로, 학습 데이터 안에서 20\%를 떼어 $C$ 후보 6개(0.003, 0.01, 0.03, 0.1, 0.3, 1) 중 그 20\%의 log loss가 가장 작은 값을 골랐다(\ft{choose_C}). 2013년 Lasso는 $C=0.3$, 계수 90개 중 58개만 남았다.
+
+\section{결정나무와 앙상블}
+나무는 ``FICO $<$ 690인가?'' 같은 질문을 반복해 대출을 잘게 나누고, 각 칸의 부도율을 예측으로 쓴다. 비선형, 상호작용, 결측을 자연스럽게 다루지만 나무 하나는 불안정하다. 그래서 여러 개를 합친다.
+\begin{itemize}[leftmargin=*]
+\item \textbf{Random Forest}: 데이터와 변수를 무작위로 뽑아 독립적인 나무 수백 개를 만들고 평균한다. 분산을 줄인다.
+\item \textbf{Gradient boosting}: 나무를 순서대로 쌓되, 각 나무는 앞 나무들이 틀린 부분(손실의 기울기)을 고친다. 편향을 줄인다.
+\end{itemize}
+\textit{비유:} RF는 독립적인 전문가 300명의 다수결, 부스팅은 한 사람이 오답 노트를 보며 고쳐 나가는 공부다.
+
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{@{}p{28mm}L@{}}\toprule
+구현 & 특징\\\midrule
+LightGBM & 히스토그램 분할, 잎 단위 성장(leaf-wise). 빠르고 범주형과 결측을 직접 다룸. 이 프로젝트의 기본 모델\\
+XGBoost & 깊이 단위 성장(depth-wise)이 기본, 2차 근사 손실. \ft{tree_method='hist'}로 LightGBM과 비슷한 속도\\
+CatBoost & 범주형을 순서형 target statistic으로 처리, 대칭 나무. 결측을 기본적으로 ``최솟값''으로 취급\\
+HistGB & scikit-learn의 LightGBM식 구현\\\bottomrule
+\end{tabularx}
+\caption{부스팅 구현 비교.}
+\end{table}
+
+\paragraph{LightGBM 고정 파라미터(\ft{models.LGB_PARAMS}).} 학습률 0.05, 잎 63개, 행 80\%와 열 60\% 표본추출, 잎당 최소 200건, L2 규제 5, 범주 평활 50. 나무 수는 최대 2000개이고, 학습 데이터의 15\%를 떼어 50번 연속 개선이 없으면 멈춘다(\textbf{early stopping}). 하이퍼파라미터를 평가 결과로 고르지 않은 것이 원칙이다.
+
+\section{모델 비교 결과(23--25단계)}
+조건: 시점 학습 2013--16, 트리는 시드 3개 평균, 판정 기준 사전 고정(기준 모델보다 4개 연도 중 3개 이상에서 선별 가치 0.1\%p 또는 AUC 0.002 넘게 나으면 도전자).
+
+\begin{table}[H]\centering\small
+\begin{tabular}{@{}lrrrl@{}}\toprule
+모델 & AUC & 선별 가치 & Brier & 판정\\\midrule
+LightGBM 기본 & 0.659 & 1.03\%p & 0.1186 & 기준, 95\% 구간 0.95--1.11\\
+XGBoost & 0.655 & 1.04\%p & 0.1193 & 같음(차이 +0.01, $p=0.41$)\\
+LightGBM + 피처 & 0.660 & 1.08\%p & 0.1186 & 1개 연도만 우위\\
+RandomForest & \textbf{0.669} & 0.85\%p & 0.1166 & 실제로 낮음($-0.18$)\\
+LightGBM 튜닝 & 0.648 & 0.86\%p & 0.1221 & 기각\\
+CatBoost & 0.651 & 0.68\%p & 0.1250 & 기각(2016 붕괴)\\
+Lasso + 피처 & 0.649 & 0.76\%p & 0.1203 & 선형 대표, 실제로 낮음($-0.28$)\\
+Lasso & 0.652 & 0.66\%p & 0.1190 & \\
+Ridge & 0.653 & 0.63\%p & 0.1189 & \\
+HistGB & 0.628 & 0.63\%p & 0.1248 & 기각(2013 AUC 0.505)\\
+L2 기준($C=1$) & 0.641 & 0.61\%p & 0.1198 & 선형 기준\\\bottomrule
+\end{tabular}
+\caption{모델 비교. ``실제로 낮음''은 25단계 짝 부트스트랩과 Holm 보정에서 유의.}
+\end{table}
+
+\begin{keybox}[이 표에서 읽을 것]
+\begin{enumerate}[leftmargin=*]
+\item \textbf{AUC 1위가 돈 1위가 아니다.} RF는 AUC가 가장 높지만 선별 가치는 LightGBM보다 0.18\%p 낮다(C19).
+\item \textbf{1\%p는 모델의 산물이 아니다.} LightGBM과 XGBoost가 같은 값을 낸다(C20).
+\item 튜닝, 피처, 다른 부스팅 구현으로 올라가지 않는다. 신호의 크기가 정해져 있다.
+\end{enumerate}
+\Intuit{더 똑똑한 모델을 찾는 대신, 이미 있는 신호의 크기를 정확히 쟀다.}
+\end{keybox}
+
+\subsection*{CatBoost 붕괴의 진단(24b단계)}
+CatBoost는 2016년 평균 부도확률을 3.6\%로 예측했다(실제 15.9\%). 두 번 비판했다.
+\begin{enumerate}[leftmargin=*]
+\item \textbf{순위 문제인가 수준 문제인가?} 평균만 LightGBM 수준으로 옮기면 선별 가치가 $-0.12$에서 0.69\%p로 회복. \ensuremath{\to} 주원인은 수준.
+\item \textbf{원인 가설: 새 컬럼이 ``빨리 끝난 대출''의 대리 변수였다?} 학습에서 새 컬럼 값이 있는 대출과 없는 대출의 부도율이 17.2\% vs 17.6\%로 같다. \ensuremath{\to} 가설 기각.
+\end{enumerate}
+가용성 규칙(\S4.5)을 적용하면 평균 PD 11.8\%, 선별 가치 0.93\%p로 정상화된다. 기제는 아직 모른다. 학습 때 소수 대출에만 있던 컬럼의 분할이 평가 때 넓게 적용되며 외삽이 틀린 것으로 보인다.
+
+\section{기대수익 점수와 LGD}
+\textbf{질문.} 부도확률 5\%짜리 8\% 금리 대출과, 25\%짜리 22\% 금리 대출 중 무엇이 나은가?
+
+1년 동안 대출 하나에서 기대할 수 있는 초과수익을 아주 단순하게 쓰면: 확률 $1-p$로 금리 $r$를 받고, 확률 $p$로 원금의 LGD만큼 잃고, 대신 국채 $tb$를 포기한다.
+\[
+s=(1-p)\,r-p\cdot\mathrm{LGD}-tb .
+\]
+LGD는 그 시점까지 확정된 부도 대출에서 ``1 $-$ 받은 총액/대출액을 평균한 값이다. 코드는 \ft{asof.loss_given_default}이다. 실제 값은 2013년 모델 0.618, 2016년 모델 0.520이다.
+
+\begin{workout}[두 대출의 기대수익 점수]
+\Use{기대수익 점수(이 절), LGD}
+\Step{1} 예시: LGD $=0.6$, 국채 $tb=1.5\%$.
+\Step{2} 대출 1: $p=0.05$, $r=0.08$. $s=0.95\times0.08-0.05\times0.6-0.015=0.076-0.030-0.015=0.031$.
+\Step{3} 대출 2: $p=0.25$, $r=0.22$. $s=0.75\times0.22-0.25\times0.6-0.015=0.165-0.150-0.015=0.000$.
+\Ans{대출 1이 낫다(3.1\%p vs 0). 대출 2는 높은 금리가 부도 위험을 딱 상쇄하는 ``공정한 가격''이다.}
+\Verify{\ft{checks.py} 5번.}
+\Trap{부도확률만 보고 고른다. 대출 2의 부도확률이 30\%였다면 점수는 음수지만, 15\%였다면 대출 1보다 좋다. 금리와 함께 봐야 한다.}
+\end{workout}
+
+이 식은 연 단위 단순 근사다. 조기상환, 부도 시점, 회수 시점을 무시한다. 그래도 순위를 정하는 데는 충분하다는 것이 실험 결과다.
+
+\section{확률 보정(calibration)}
+기대수익 점수는 $p$의 \textbf{순위}뿐 아니라 \textbf{크기}에도 기댄다. $p$를 일괄로 두 배로 틀리면, 금리와 곱해지면서 등급 사이의 순서가 바뀐다.
+
+9단계에서 보정 세 가지(isotonic, 만기 도달 대출로 보정, 생존분석 이동)를 시험했지만 모두 수준을 못 고쳤다. 과거로 만든 보정은 신용이 악화되는 추세(금리는 내리고 부도율과 DTI는 오름, C9)를 따라가지 못한다.
+
+\begin{whybox}[그런데 왜 성과는 괜찮았나: 상쇄]
+시점 학습 모델은 PD를 과소추정하고(최근 대출일수록 아직 부도가 덜 확정되어서), LGD는 과대추정한다(일찍 부도 난 대출은 받은 돈이 적어서). 두 오차가 $p\cdot\mathrm{LGD}$에서 서로 상쇄된다(C10). 2013년 LightGBM은 PD를 6.4\%로 실제(12.2\%)의 절반만 예측했지만 선별 가치는 가장 높았다. 수준은 \textbf{극단적으로} 무너질 때만(CatBoost 2016) 문제가 된다.
+\end{whybox}
+
+\begin{career}
+``모델 선택을 어떻게 했나?''에 대한 좋은 답: ``판정 기준을 먼저 정하고, 같은 시점 학습 조건에서 17종을 비교했고, 이긴 모델이 없어서 원래 모델을 유지했다. 대신 왜 AUC와 돈이 어긋나는지(확률 수준), 한 모델이 왜 무너졌는지(변수 가용성)를 진단했다.'' 고른 모델보다 \textbf{고르는 절차}가 평가받는다.
+\end{career}

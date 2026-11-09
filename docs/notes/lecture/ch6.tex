@@ -1,0 +1,97 @@
+\chapter{평가 지표: 무엇으로 채점하나}
+
+\section{Sharpe ratio와 그 함정}
+\textbf{질문.} 수익이 높지만 출렁이는 전략과, 낮지만 안정된 전략 중 무엇이 나은가?
+
+Sharpe ratio는 초과수익 평균을 그 표준편차로 나눠 ``위험 한 단위당 보상''을 잰다: $\mathrm{SR}=\bar x/\mathrm{sd}(x)$, $x=$ 수익률 $-$ $r_f$.
+
+과제식 Sharpe는 대출마다 $x$를 정한다: 승인하면 그 대출의 초과수익, \textbf{거절하면 국채를 산 것으로 보아 0}. 승인비율을 $a$, 승인 대출 초과수익의 평균과 표준편차를 $m,s$라 하면 전체의 평균은 $am$, 분산은 $a(s^2+m^2)-a^2m^2$이므로
+\[
+\mathrm{SR}(a)=\frac{am}{\sqrt{a s^2+a(1-a)m^2}}=\sqrt{a}\cdot\frac{m}{\sqrt{s^2+(1-a)m^2}} .
+\]
+
+\begin{workout}[승인비율에 따른 Sharpe]
+\Use{$\sqrt a$ 항등식(이 절)}
+\Step{1} 예시: 승인 대출의 $m=4\%$, $s=20\%$로 고정(같은 대출들을 고르는 비율만 바꿈).
+\Step{2} $a=1$: $\mathrm{SR}=0.04/0.20=0.200$.
+\Step{3} $a=0.5$: $\sqrt{0.5}\times0.04/\sqrt{0.04+0.5\times0.0016}=0.7071\times0.04/0.2020=0.140$.
+\Step{4} $a=0.1$: $0.3162\times0.04/\sqrt{0.04+0.9\times0.0016}=0.0621$.
+\Ans{대출의 질이 같아도 승인비율만 줄이면 Sharpe가 $\sqrt a$에 가깝게 떨어진다.}
+\Verify{\ft{checks.py} 7번.}
+\Trap{Sharpe가 승인비율에 따라 역U자를 그리면 ``최적 승인비율''을 찾았다고 생각한다. 그 모양의 상당 부분은 이 항등식에서 기계적으로 나온다(C4).}
+\end{workout}
+
+\begin{keybox}[비율 지표의 공통 문제(C11)]
+Sharpe, information ratio, RAROC 같은 비율 지표는 분모(위험, 자본)를 줄이는 쪽, 즉 \textbf{투자를 줄이는 쪽}으로 기운다. 2013--16년처럼 전부 승인해도 국채를 이기는 시장에서는 ``얼마나 많이 벌었나''가 빠진다.
+\Intuit{비율은 효율을 재지 규모를 재지 않는다. 1원 넣어 2원 번 사람이 100원 넣어 150원 번 사람보다 ``더 잘했다''고 말한다.}
+\end{keybox}
+
+\section{대안 지표들}
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{@{}p{30mm}LL@{}}\toprule
+지표 & 식/뜻 & 이 프로젝트에서\\\midrule
+Information ratio & 기준(전부 승인) 대비 초과수익 평균/표준편차 & 비율 지표의 같은 문제\\
+RAROC & (이자 $-$ 조달비 $-$ 운영비 $-$ 예상손실)/바젤 자본 & 기본 가정에서 99\% 승인, 결과가 가정에 좌우. 주 지표에서 제외\\
+EVA & 수익 $-$ 요구수익률 \ensuremath{\times} 자본 & RAROC과 같은 가정 의존\\
+CVaR(하위 5\% 평균) & 최악 꼬리의 평균 & 보조 보고\\
+확실성 등가 & 위험회피 효용으로 환산한 수익 & 위험회피 50까지도 최적은 전부 승인\\
+\textbf{선별 곡선} & 승인비율별 (선택 IRR $-$ 무작위 IRR) & \textbf{주 지표}\\
+\textbf{Brinson 분해} & 초과수익 = 배분 + 선별 + 상호작용 & \textbf{주 해석 도구}\\\bottomrule
+\end{tabularx}
+\caption{지표 비교(10, 11, 14단계).}
+\end{table}
+
+\section{순위의 정확도와 수준의 정확도: AUC와 Brier}
+\textbf{AUC}는 부도 하나와 정상 하나를 무작위로 뽑았을 때 부도 쪽에 더 높은 점수를 줄 확률이다. 0.5는 동전 던지기, 1은 완벽. \textbf{Brier}는 $\frac1n\sum(p_i-y_i)^2$로, 확률 크기가 맞는지를 본다.
+
+\begin{workout}[5건짜리 AUC와 Brier]
+\Use{AUC, Brier(이 절)}
+\Step{1} 예시: 부도 2건(예측 0.30, 0.10), 정상 3건(0.20, 0.05, 0.08).
+\Step{2} 부도-정상 쌍 $2\times3=6$개를 센다. 0.30은 세 정상 모두보다 높다(3쌍). 0.10은 0.05, 0.08보다 높고 0.20보다 낮다(2쌍). \Concept{AUC 정의}
+\Step{3} AUC $=5/6=0.833$.
+\Step{4} Brier $=\frac15[(0.3-1)^2+(0.1-1)^2+0.2^2+0.05^2+0.08^2]=\frac15[0.49+0.81+0.04+0.0025+0.0064]=0.270$.
+\Ans{AUC 0.833, Brier 0.270. 모든 확률을 절반으로 줄여도 AUC는 그대로지만 Brier는 바뀐다.}
+\Verify{\ft{checks.py} 6번.}
+\end{workout}
+
+\section{선별 곡선과 선별 가치}
+\textbf{질문.} 순위가 돈을 얼마나 더 버는지를 한 숫자로?
+
+승인비율 $q=10\%,20\%,\dots,90\%$마다 점수 상위 $q$를 승인한 포트폴리오의 발행월 코호트 IRR에서 국채를 뺀다. 같은 비율을 무작위로 승인한 경우(5번 평균)도 계산해 뺀다. 그 차이를 9개 비율에 걸쳐 평균한 것이 \textbf{선별 가치}다.
+\[
+\mathrm{SV}=\frac19\sum_{q}\Big[\overline{(\mathrm{IRR}-tb)}_{\text{상위 }q}-\overline{(\mathrm{IRR}-tb)}_{\text{무작위 }q}\Big].
+\]
+무작위를 빼므로 ``그 해 시장이 좋았다''는 효과가 사라지고 순위의 효과만 남는다. 승인비율 하나를 고르지 않으므로 임계값 선택에 따른 엿보기도 없다.
+
+\begin{insight}[선행 연구]
+처음엔 새로운 방법이라 생각했지만, 수익 기반 점수(profit scoring, Serrano-Cinca \& Guti\'errez-Nieto 2016)와 EMP(expected maximum profit, Verbraken 외 2014)가 이미 같은 생각을 했다. 이 프로젝트의 기여는 방법이 아니라 \textbf{시점 학습 + 코호트 IRR + 부트스트랩 + 종결 편향 점검}으로 정직하게 잰 것이다.
+\end{insight}
+
+\section{Brinson 분해: 추가 수익은 어디서 오나}
+펀드 평가에서 쓰는 방법이다. 기준 포트폴리오(전부 승인)와 모델 포트폴리오(상위 50\%)를 등급 $k$별로 비교한다. 기준 비중 $w^b_k$, 모델 비중 $w^p_k$, 기준 수익 $R^b_k$, 모델 수익 $R^p_k$라 하면
+\[
+\underbrace{\sum_k w^p_kR^p_k-\sum_k w^b_kR^b_k}_{\text{초과수익}}
+=\underbrace{\sum_k(w^p_k-w^b_k)R^b_k}_{\text{배분}}
++\underbrace{\sum_k w^b_k(R^p_k-R^b_k)}_{\text{선별}}
++\underbrace{\sum_k(w^p_k-w^b_k)(R^p_k-R^b_k)}_{\text{상호작용}} .
+\]
+
+\begin{workout}[두 등급 Brinson]
+\Use{Brinson 분해(이 절)}
+\Step{1} 예시: 등급 A, B. 기준 비중 (0.6, 0.4), 수익 (4\%, 7\%). 모델 비중 (0.7, 0.3), 수익 (5\%, 8\%).
+\Step{2} 기준 수익 $0.6\times4+0.4\times7=5.2\%$. 모델 수익 $0.7\times5+0.3\times8=5.9\%$. 초과 0.7\%p.
+\Step{3} 배분 $=(0.1)(4)+(-0.1)(7)=-0.3\%$p. \Concept{배분: 등급 비중 바꾸기}
+\Step{4} 선별 $=0.6(1)+0.4(1)=+1.0\%$p. \Concept{선별: 같은 등급 안에서 고르기}
+\Step{5} 상호작용 $=(0.1)(1)+(-0.1)(1)=0$.
+\Ans{$-0.3+1.0+0=0.7\%$p. 이 모델은 등급 배분으로는 손해를 보고, 등급 안 선별로 벌었다.}
+\Verify{\ft{checks.py} 9번. 세 항의 합이 초과수익과 같다.}
+\end{workout}
+
+\begin{keybox}[결과 C7, C13, C17]
+실제 데이터(세부등급 35개 기준, 시드 5개, 2017년 보류 구간)에서도 모델의 추가 수익은 주로 \textbf{등급 안 선별}에서 나왔다. 상호작용은 $-0.2$--$+0.1$\%p로 작았다. 묶음 기준을 금리 20구간, 목적, 주, 금액으로 바꾸거나 60개월 대출로 바꿔도 유지된다. 단 2013년은 배분이 주효과였다.
+\Intuit{LC는 등급끼리의 가격은 잘 매겼다. 돈은 같은 등급 안의 ``숨은 차이''에서 나온다.}
+\end{keybox}
+
+\begin{career}
+금융 도메인에서 Brinson attribution은 익숙한 언어다. ML 모델의 성과를 ``AUC 0.66''이 아니라 ``추가 수익 중 몇 \%p가 등급 배분, 몇 \%p가 등급 안 선별''로 설명하면, 현업(투자, 리스크) 면접관과 같은 언어로 말하게 된다.
+\end{career}

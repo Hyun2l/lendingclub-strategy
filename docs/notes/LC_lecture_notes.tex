@@ -1,0 +1,39 @@
+\documentclass[11pt]{report}
+\input{neuron-style}
+\usepackage{float}
+\usetikzlibrary{arrows.meta,positioning,calc,decorations.pathreplacing}
+\usepackage{pgfplots}\pgfplotsset{compat=1.18}
+\newcommand{\ft}[1]{\texttt{\detokenize{#1}}}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\lstdefinestyle{py}{language=Python,basicstyle=\ttfamily\small,keywordstyle=\bfseries,commentstyle=\itshape\color{black!55},
+  stringstyle=\color{black!80},frame=leftline,framerule=0.8pt,rulecolor=\color{black!45},xleftmargin=3mm,
+  showstringspaces=false,breaklines=true,columns=fullflexible,upquote=true}
+\lstset{style=py}
+\begin{document}
+
+\begin{titlepage}\centering
+\vspace*{30mm}
+{\Huge\bfseries LendingClub 대출 승인 전략\par}\medskip
+{\Large 데이터에서 검증까지, 기초부터 따라가는 강의노트\par}
+\vspace{12mm}
+{\large 서울대 ABS 14기 팀 프로젝트\par}
+\vspace{4mm}
+{\small 2026년 11월 9일 기준 \ensuremath{\cdot} 숫자는 모두 공식 train 데이터 실험 결과(예시라고 적은 것 제외)\par}
+\vfill
+{\small 이 노트는 코드 저장소의 1\textasciitilde 26단계 실험, \ft{docs/decisions.md}, \ft{docs/research_log.md}를 바탕으로 쓴다.\par}
+\end{titlepage}
+
+\tableofcontents
+\input{lecture/front}
+\input{lecture/ch1}
+\input{lecture/ch2}
+\input{lecture/ch3}
+\input{lecture/ch4}
+\input{lecture/ch5}
+\input{lecture/ch6}
+\input{lecture/ch7}
+\input{lecture/ch8}
+\input{lecture/ch9}
+\appendix
+\input{lecture/appendix}
+\end{document}
