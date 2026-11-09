@@ -15,3 +15,6 @@ __pycache__/
 *.pyc
 .ipynb_checkpoints/
 .pytest_cache/
+
+# test 승인 목록(대용량, 예측 결과라 저장소에 올리지 않음)
+results/test*/approval_list_*.csv
