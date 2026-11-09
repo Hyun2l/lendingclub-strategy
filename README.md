@@ -28,7 +28,18 @@
 | 3 | 수익률 함수, 국채 연결 | 완료 |
 | 4 | 기준선 전략 표 | 완료 |
 | 5 | test 점검 코드 | 완료 |
-| 6 | 그 시점 정보만 쓰는 학습 틀 | |
+| 6 | 그 시점 정보만 쓰는 학습 틀 | 완료 |
 
 ## 결정 기록
 각 단계에서 무엇을 왜 골랐는지 `docs/decisions.md`에 남긴다.
+
+## 실행 순서
+```
+python scripts/prepare_data.py
+python -m pytest tests
+python scripts/02_check_data.py
+python scripts/03_returns.py
+python scripts/04_baselines.py
+python scripts/05_inspect_test.py <test 파일>
+python scripts/06_asof_demo.py
+```
