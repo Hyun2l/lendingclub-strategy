@@ -1,0 +1,54 @@
+class target rates [6.93,10.57,14.13,18.58,24.41,29.60,30.87] bad [.096,.197,.306,.417,.467,.509,.545] overall .246
+2017 all resolved 188207 0.211 [6.96, 10.57, 14.23, 18.73, 24.69, 29.75, 30.88] [0.068, 0.148, 0.253, 0.334, 0.397, 0.482, 0.525]
+2017 36m 148058 0.173 [6.94, 10.55, 14.14, 18.69, 24.4, 29.81, 30.89] [0.066, 0.14, 0.222, 0.294, 0.344, 0.388, 0.493]
+2017 60m 40149 0.352 [7.79, 10.66, 14.43, 18.83, 25.02, 29.72, 30.88] [0.133, 0.209, 0.327, 0.42, 0.458, 0.518, 0.536]
+loan_status
+Fully Paid            148502
+Current                74375
+Charged Off            39609
+Late (31-120 days)      1706
+In Grace Period         1088
+Late (16-30 days)        294
+Default                   96
+2017 incl late 0.224 [0.074, 0.16, 0.267, 0.349, 0.41, 0.492, 0.533]
+
+수익률 요약
+                 RA            RB            RC
+count  1.116156e+06  1.116156e+06  1.116156e+06
+mean   1.012000e-01  1.410000e-02  3.660000e-02
+std    6.460000e-02  8.080000e-02  1.109000e-01
+min    0.000000e+00 -3.333000e-01 -9.000000e-01
+25%    6.680000e-02  1.210000e-02  5.600000e-02
+50%    1.091000e-01  3.640000e-02  7.070000e-02
+75%    1.416000e-01  5.930000e-02  8.800000e-02
+max    3.099000e-01  3.901000e-01  3.576000e-01
+         RA      RB      RC
+bad                        
+0    0.1257  0.0469  0.0799
+1    0.0000 -0.1216 -0.1422
+           RA      RB      RC
+grade                        
+A      0.0665  0.0158  0.0451
+B      0.0923  0.0183  0.0438
+C      0.1093  0.0135  0.0349
+D      0.1264  0.0089  0.0251
+E      0.1340  0.0084  0.0223
+F      0.1396  0.0056  0.0167
+G      0.1386 -0.0076 -0.0014
+특성 101 True True
+random PD AUC 0.7312 trees 535 22s
+{'split': 'random', 'R': 'RA', '전부승인': np.float64(0.796), 'logit PD컷': np.float64(0.802), 'logit PD컷_승인%': np.float64(97.078), 'logit PD컷_val': np.float64(0.795), 'LGBM PD컷': np.float64(0.808), 'LGBM PD컷_승인%': np.float64(94.988), 'LGBM PD컷_val': np.float64(0.801), '금리순': np.float64(0.803), '금리순_승인%': np.float64(97.05), '금리순_val': np.float64(0.795), 'E[e]컷': np.float64(0.797), 'E[e]컷_승인%': np.float64(99.017), 'E[e]컷_val': np.float64(0.79), 'E[e]/E[e²]컷': np.float64(0.809), 'E[e]/E[e²]컷_승인%': np.float64(94.963), 'E[e]/E[e²]컷_val': np.float64(0.802), 'PD→E/E²(해석식)': np.float64(0.811), 'PD→E/E²(해석식)_승인%': np.float64(93.983), 'PD→E/E²(해석식)_val': np.float64(0.804), '코호트_전부승인': np.float64(20.336), '코호트_PD컷': np.float64(19.099), '코호트_E/E2': np.float64(19.574), 'Δ전부승인_CI': '+0.011~+0.014', 'ΔPD컷_CI': '+0.000~+0.002'}
+{'split': 'random', 'R': 'RB', '전부승인': np.float64(-0.444), 'logit PD컷': np.float64(-0.096), 'logit PD컷_승인%': np.float64(2.013), 'logit PD컷_val': np.float64(-0.094), 'LGBM PD컷': np.float64(-0.108), 'LGBM PD컷_승인%': np.float64(2.007), 'LGBM PD컷_val': np.float64(-0.106), '금리순': np.float64(-0.112), '금리순_승인%': np.float64(2.417), '금리순_val': np.float64(-0.11), 'E[e]컷': np.float64(0.013), 'E[e]컷_승인%': np.float64(2.004), 'E[e]컷_val': np.float64(0.011), 'E[e]/E[e²]컷': np.float64(0.013), 'E[e]/E[e²]컷_승인%': np.float64(1.996), 'E[e]/E[e²]컷_val': np.float64(0.011), '코호트_전부승인': np.float64(-9.294), '코호트_PD컷': np.float64(-8.278), '코호트_E/E2': np.float64(2.103), 'Δ전부승인_CI': '+0.452~+0.462', 'ΔPD컷_CI': '+0.114~+0.128'}
+{'split': 'random', 'R': 'RC', '전부승인': np.float64(-0.12), 'logit PD컷': np.float64(-0.001), 'logit PD컷_승인%': np.float64(2.013), 'logit PD컷_val': np.float64(-0.003), 'LGBM PD컷': np.float64(0.031), 'LGBM PD컷_승인%': np.float64(22.067), 'LGBM PD컷_val': np.float64(0.029), '금리순': np.float64(-0.004), '금리순_승인%': np.float64(3.197), '금리순_val': np.float64(-0.003), 'E[e]컷': np.float64(0.083), 'E[e]컷_승인%': np.float64(21.893), 'E[e]컷_val': np.float64(0.085), 'E[e]/E[e²]컷': np.float64(0.089), 'E[e]/E[e²]컷_승인%': np.float64(22.907), 'E[e]/E[e²]컷_val': np.float64(0.088), '코호트_전부승인': np.float64(0.011), '코호트_PD컷': np.float64(5.785), '코호트_E/E2': np.float64(5.005), 'Δ전부승인_CI': '+0.203~+0.215', 'ΔPD컷_CI': '+0.051~+0.065'}
+{'split': 'random', 'R': 'RD', '전부승인': np.float64(-0.041), 'logit PD컷': np.float64(0.037), 'logit PD컷_승인%': np.float64(37.155), 'logit PD컷_val': np.float64(0.036), 'LGBM PD컷': np.float64(0.101), 'LGBM PD컷_승인%': np.float64(33.215), 'LGBM PD컷_val': np.float64(0.101), '금리순': np.float64(0.038), '금리순_승인%': np.float64(3.197), '금리순_val': np.float64(0.038), 'E[e]컷': np.float64(0.151), 'E[e]컷_승인%': np.float64(33.981), 'E[e]컷_val': np.float64(0.153), 'E[e]/E[e²]컷': np.float64(0.159), 'E[e]/E[e²]컷_승인%': np.float64(35.99), 'E[e]/E[e²]컷_val': np.float64(0.16), '코호트_전부승인': np.float64(3.903), '코호트_PD컷': np.float64(9.147), '코호트_E/E2': np.float64(7.152), 'Δ전부승인_CI': '+0.194~+0.207', 'ΔPD컷_CI': '+0.051~+0.064'}
+random+발행연도 PD AUC 0.7333 trees 621 27s
+{'split': 'random+발행연도', 'R': 'RA', '전부승인': np.float64(0.796), 'logit PD컷': np.float64(0.802), 'logit PD컷_승인%': np.float64(97.078), 'logit PD컷_val': np.float64(0.795), 'LGBM PD컷': np.float64(0.809), 'LGBM PD컷_승인%': np.float64(94.985), 'LGBM PD컷_val': np.float64(0.802), '금리순': np.float64(0.803), '금리순_승인%': np.float64(97.05), '금리순_val': np.float64(0.795), 'E[e]컷': np.float64(0.797), 'E[e]컷_승인%': np.float64(99.027), 'E[e]컷_val': np.float64(0.79), 'E[e]/E[e²]컷': np.float64(0.81), 'E[e]/E[e²]컷_승인%': np.float64(93.947), 'E[e]/E[e²]컷_val': np.float64(0.803), 'PD→E/E²(해석식)': np.float64(0.813), 'PD→E/E²(해석식)_승인%': np.float64(94.003), 'PD→E/E²(해석식)_val': np.float64(0.804), '코호트_전부승인': np.float64(20.336), '코호트_PD컷': np.float64(18.606), '코호트_E/E2': np.float64(19.085), 'Δ전부승인_CI': '+0.013~+0.015', 'ΔPD컷_CI': '+0.001~+0.003'}
+{'split': 'random+발행연도', 'R': 'RB', '전부승인': np.float64(-0.444), 'logit PD컷': np.float64(-0.096), 'logit PD컷_승인%': np.float64(2.013), 'logit PD컷_val': np.float64(-0.094), 'LGBM PD컷': np.float64(-0.109), 'LGBM PD컷_승인%': np.float64(2.002), 'LGBM PD컷_val': np.float64(-0.11), '금리순': np.float64(-0.112), '금리순_승인%': np.float64(2.417), '금리순_val': np.float64(-0.11), 'E[e]컷': np.float64(0.018), 'E[e]컷_승인%': np.float64(1.966), 'E[e]컷_val': np.float64(0.014), 'E[e]/E[e²]컷': np.float64(0.017), 'E[e]/E[e²]컷_승인%': np.float64(1.953), 'E[e]/E[e²]컷_val': np.float64(0.015), '코호트_전부승인': np.float64(-9.294), '코호트_PD컷': np.float64(-8.289), '코호트_E/E2': np.float64(2.269), 'Δ전부승인_CI': '+0.456~+0.465', 'ΔPD컷_CI': '+0.120~+0.134'}
+{'split': 'random+발행연도', 'R': 'RC', '전부승인': np.float64(-0.12), 'logit PD컷': np.float64(-0.001), 'logit PD컷_승인%': np.float64(2.013), 'logit PD컷_val': np.float64(-0.003), 'LGBM PD컷': np.float64(0.037), 'LGBM PD컷_승인%': np.float64(25.128), 'LGBM PD컷_val': np.float64(0.035), '금리순': np.float64(-0.004), '금리순_승인%': np.float64(3.197), '금리순_val': np.float64(-0.003), 'E[e]컷': np.float64(0.084), 'E[e]컷_승인%': np.float64(24.988), 'E[e]컷_val': np.float64(0.09), 'E[e]/E[e²]컷': np.float64(0.088), 'E[e]/E[e²]컷_승인%': np.float64(29.033), 'E[e]/E[e²]컷_val': np.float64(0.092), '코호트_전부승인': np.float64(0.011), '코호트_PD컷': np.float64(5.225), '코호트_E/E2': np.float64(4.924), 'Δ전부승인_CI': '+0.202~+0.214', 'ΔPD컷_CI': '+0.045~+0.058'}
+{'split': 'random+발행연도', 'R': 'RD', '전부승인': np.float64(-0.041), 'logit PD컷': np.float64(0.037), 'logit PD컷_승인%': np.float64(37.155), 'logit PD컷_val': np.float64(0.036), 'LGBM PD컷': np.float64(0.108), 'LGBM PD컷_승인%': np.float64(32.211), 'LGBM PD컷_val': np.float64(0.108), '금리순': np.float64(0.038), '금리순_승인%': np.float64(3.197), '금리순_val': np.float64(0.038), 'E[e]컷': np.float64(0.157), 'E[e]컷_승인%': np.float64(32.039), 'E[e]컷_val': np.float64(0.161), 'E[e]/E[e²]컷': np.float64(0.168), 'E[e]/E[e²]컷_승인%': np.float64(38.066), 'E[e]/E[e²]컷_val': np.float64(0.168), '코호트_전부승인': np.float64(3.903), '코호트_PD컷': np.float64(9.328), '코호트_E/E2': np.float64(7.148), 'Δ전부승인_CI': '+0.204~+0.215', 'ΔPD컷_CI': '+0.054~+0.066'}
+time(≤14/15/16) PD AUC 0.7214 trees 253 8s
+{'split': 'time(≤14/15/16)', 'R': 'RA', '전부승인': np.float64(0.76), 'logit PD컷': np.float64(0.771), 'logit PD컷_승인%': np.float64(95.324), 'logit PD컷_val': np.float64(0.768), 'LGBM PD컷': np.float64(0.772), 'LGBM PD컷_승인%': np.float64(96.404), 'LGBM PD컷_val': np.float64(0.77), '금리순': np.float64(0.772), '금리순_승인%': np.float64(93.966), '금리순_val': np.float64(0.769), 'E[e]컷': np.float64(0.76), 'E[e]컷_승인%': np.float64(100.0), 'E[e]컷_val': np.float64(0.761), 'E[e]/E[e²]컷': np.float64(0.773), 'E[e]/E[e²]컷_승인%': np.float64(94.938), 'E[e]/E[e²]컷_val': np.float64(0.771), 'PD→E/E²(해석식)': np.float64(0.776), 'PD→E/E²(해석식)_승인%': np.float64(92.407), 'PD→E/E²(해석식)_val': np.float64(0.774), '코호트_전부승인': np.float64(30.675), '코호트_PD컷': np.float64(29.397), '코호트_E/E2': np.float64(31.265), 'Δ전부승인_CI': '+0.012~+0.014', 'ΔPD컷_CI': '+0.001~+0.002'}
+{'split': 'time(≤14/15/16)', 'R': 'RB', '전부승인': np.float64(-0.426), 'logit PD컷': np.float64(-0.093), 'logit PD컷_승인%': np.float64(2.344), 'logit PD컷_val': np.float64(-0.087), 'LGBM PD컷': np.float64(-0.118), 'LGBM PD컷_승인%': np.float64(2.501), 'LGBM PD컷_val': np.float64(-0.11), '금리순': np.float64(-0.155), '금리순_승인%': np.float64(4.618), '금리순_val': np.float64(-0.117), 'E[e]컷': np.float64(-0.029), 'E[e]컷_승인%': np.float64(3.116), 'E[e]컷_val': np.float64(-0.015), 'E[e]/E[e²]컷': np.float64(-0.027), 'E[e]/E[e²]컷_승인%': np.float64(2.874), 'E[e]/E[e²]컷_val': np.float64(-0.014), '코호트_전부승인': np.float64(-67.77), '코호트_PD컷': np.float64(-13.71), '코호트_E/E2': np.float64(-12.113), 'Δ전부승인_CI': '+0.395~+0.403', 'ΔPD컷_CI': '+0.084~+0.098'}
+{'split': 'time(≤14/15/16)', 'R': 'RC', '전부승인': np.float64(-0.097), 'logit PD컷': np.float64(-0.002), 'logit PD컷_승인%': np.float64(16.044), 'logit PD컷_val': np.float64(0.022), 'LGBM PD컷': np.float64(0.027), 'LGBM PD컷_승인%': np.float64(23.245), 'LGBM PD컷_val': np.float64(0.049), '금리순': np.float64(-0.007), '금리순_승인%': np.float64(14.489), '금리순_val': np.float64(0.013), 'E[e]컷': np.float64(0.017), 'E[e]컷_승인%': np.float64(26.037), 'E[e]컷_val': np.float64(0.047), 'E[e]/E[e²]컷': np.float64(0.031), 'E[e]/E[e²]컷_승인%': np.float64(19.764), 'E[e]/E[e²]컷_val': np.float64(0.064), '코호트_전부승인': np.float64(-13.485), '코호트_PD컷': np.float64(6.642), '코호트_E/E2': np.float64(7.297), 'Δ전부승인_CI': '+0.124~+0.134', 'ΔPD컷_CI': '-0.000~+0.009'}
+{'split': 'time(≤14/15/16)', 'R': 'RD', '전부승인': np.float64(-0.006), 'logit PD컷': np.float64(0.083), 'logit PD컷_승인%': np.float64(39.558), 'logit PD컷_val': np.float64(0.118), 'LGBM PD컷': np.float64(0.117), 'LGBM PD컷_승인%': np.float64(36.587), 'LGBM PD컷_val': np.float64(0.149), '금리순': np.float64(0.078), '금리순_승인%': np.float64(41.136), '금리순_val': np.float64(0.112), 'E[e]컷': np.float64(0.084), 'E[e]컷_승인%': np.float64(52.435), 'E[e]컷_val': np.float64(0.129), 'E[e]/E[e²]컷': np.float64(0.11), 'E[e]/E[e²]컷_승인%': np.float64(29.746), 'E[e]/E[e²]컷_val': np.float64(0.152), '코호트_전부승인': np.float64(-0.721), '코호트_PD컷': np.float64(30.928), '코호트_E/E2': np.float64(26.016), 'Δ전부승인_CI': '+0.111~+0.121', 'ΔPD컷_CI': '-0.011~-0.002'}
+총 8.1분

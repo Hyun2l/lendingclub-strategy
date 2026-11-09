@@ -1,0 +1,17 @@
+# 데이터: 용량이 커서 저장소에 올리지 않는다 (README의 '데이터 준비' 참고)
+data/raw/
+data/processed/
+*.parquet
+# 국채 금리(data/external/*.csv)는 작아서 함께 관리한다
+
+# 강의 자료
+LendingClub 과제 소개.pdf
+LendingClub_실습_1030.ipynb
+
+# 환경
+.idea/
+.DS_Store
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.pytest_cache/
