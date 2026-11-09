@@ -50,6 +50,12 @@ for k in NAMES:
     er = (1 - p) * ev['r'].to_numpy() - p * lgd
     out[f'{k} · 부도확률 낮은 30%'] = evaluate.summarize(evr, low30)
     out[f'{k} · 기대수익 > 국채'] = evaluate.summarize(evr, er > ev['tb'].to_numpy())
+# 다음 단계에서 다시 쓰도록 평가 표본의 예측값을 저장한다(데이터 폴더, 저장소에는 올리지 않음).
+pred = ev[['ym', 'issue_year', 'term_m', 'r']].copy()
+for k in NAMES:
+    pred[f'p_{k}'] = P[k][ev.index]
+pred['lgd'] = lgd
+pred.to_parquet(data.TRAIN_PARQUET.parent / '07_predictions.parquet')
 res = pd.DataFrame(out).T
 print(res.round(4).to_string())
 RESULTS.mkdir(exist_ok=True)
