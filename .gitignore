@@ -18,3 +18,7 @@ __pycache__/
 
 # test 승인 목록(대용량, 예측 결과라 저장소에 올리지 않음)
 results/test*/approval_list_*.csv
+
+# LaTeX 빌드 부산물
+docs/notes/*.log
+docs/notes/neuron-style/*.pdf

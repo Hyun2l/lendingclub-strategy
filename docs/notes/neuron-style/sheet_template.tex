@@ -1,0 +1,31 @@
+\documentclass[10pt]{report}
+\input{neuron-style}
+\usepackage{multicol}
+\newgeometry{margin=12mm,top=11mm,bottom=11mm}
+\pagestyle{empty}
+\setlength{\columnsep}{6mm}
+\setlength{\parskip}{1.5pt}
+\titleformat{\section}{\bfseries\normalsize}{}{0em}{}
+\titlespacing*{\section}{0pt}{6pt}{2pt}
+\setlist{itemsep=1pt,topsep=1pt,parsep=0pt,leftmargin=1.1em}
+\lstset{basicstyle=\ttfamily\footnotesize,aboveskip=2pt,belowskip=3pt}
+\tcbset{nb/.append style={before skip=4pt,after skip=4pt,top=1mm,bottom=1mm,left=2mm,right=2mm}}
+\begin{document}
+\small
+\begin{center}{\large\bfseries 제목}\\[1pt]{\footnotesize 부제 한 줄}\end{center}
+\begin{warnbox}[공지]안내 사항.\end{warnbox}
+\begin{keybox}[딱 이것만]
+\begin{multicols}{2}\begin{enumerate}[leftmargin=1.3em]\item 핵심 1\item 핵심 2\end{enumerate}\end{multicols}
+\end{keybox}
+\begin{multicols}{2}\raggedright
+\section{1. 섹션}
+\begin{itemize}\item \textbf{용어} = 쉬운 말. \eg 예시. \bi 비유.\end{itemize}
+\section{문제}
+\Q{객관식}{문제 본문?\\ \textcircled{\scriptsize 1} 보기 \textcircled{\scriptsize 2} 보기}
+\A{\textcircled{\scriptsize 1}. 이유 한 줄.}
+\section{실습}
+\begin{enumerate}[leftmargin=1.3em]
+\Lab{실험 이름}{해 본 것}{보여 주는 개념}
+\end{enumerate}
+\end{multicols}
+\end{document}
