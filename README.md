@@ -32,6 +32,7 @@
 | 7 | 기본 모델 비교 | 완료 (baseline-models 브랜치) |
 | 8 | 비교 기준 바꾸기 | 완료 (rf-alternatives 브랜치) |
 | 9 | 부도확률 보정 | 완료 (calibration 브랜치) |
+| 10 | 은행 관점 RAROC 시험 | 완료 (raroc 브랜치) |
 
 ## 결정 기록
 각 단계에서 무엇을 왜 골랐는지 `docs/decisions.md`에 남긴다.
