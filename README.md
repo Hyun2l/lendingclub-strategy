@@ -37,6 +37,8 @@
 | 12~13 | EDA와 피처 엔지니어링 | 완료 (feature-engineering 브랜치) |
 | 14 | 비교 방법 재검증 | 완료 (validate-methods 브랜치) |
 | 15 | test 평가 규칙 고정 | 완료 (test-protocol 브랜치, 태그 test-protocol-v1) |
+| 16~17 | 결측 검증 시트, 피처 중요도·정리 문서 | 완료 |
+| 18~19 | 후보 A 심화 검증(탐색) | 완료 (within-grade 브랜치) |
 
 ## 결정 기록
 각 단계에서 무엇을 왜 골랐는지 `docs/decisions.md`에 남긴다.
