@@ -22,3 +22,4 @@ results/test*/approval_list_*.csv
 # LaTeX 빌드 부산물
 docs/notes/*.log
 docs/notes/neuron-style/*.pdf
+catboost_info/

@@ -1,0 +1,52 @@
+2013 LightGBM native 0.1분
+2013 LightGBM median 0.2분
+2013 LightGBM median_flags 0.2분
+2013 LightGBM typed_tree 0.2분
+2013 로지스틱 완료 0.3분
+2014 LightGBM native 0.4분
+2014 LightGBM median 0.5분
+2014 LightGBM median_flags 0.6분
+2014 LightGBM typed_tree 0.7분
+2014 로지스틱 완료 0.8분
+2015 LightGBM native 1.1분
+2015 LightGBM median 1.3분
+2015 LightGBM median_flags 1.4분
+2015 LightGBM typed_tree 1.6분
+2015 로지스틱 완료 1.7분
+2016 LightGBM native 2.1분
+2016 LightGBM median 2.4분
+2016 LightGBM median_flags 2.6분
+2016 LightGBM typed_tree 2.9분
+2016 로지스틱 완료 3.0분
+      모델        결측 처리    AUC  선별 가치  등급 안 선별  Brier  단순 방식보다 확실히 나은 연도  확실히 나쁜 연도
+LightGBM       native 0.6586 0.0103   0.0077 0.1186                  0          0
+LightGBM       median 0.6608 0.0099   0.0083 0.1179                  1          1
+LightGBM median_flags 0.6589 0.0103   0.0077 0.1184                  1          0
+LightGBM   typed_tree 0.6586 0.0104   0.0080 0.1185                  0          1
+    로지스틱       median 0.5866 0.0051   0.0035 0.1315                  0          0
+    로지스틱 median_flags 0.6023 0.0046   0.0034 0.1316                  3          2
+    로지스틱 typed_linear 0.6008 0.0045   0.0034 0.1316                  3          2
+    로지스틱          WOE 0.6513 0.0064   0.0037 0.1224                  4          3
+연도                       2013    2014    2015    2016
+모델       결측 처리                                       
+LightGBM median        0.6345  0.6584  0.6679  0.6823
+         median_flags  0.6282  0.6575  0.6682  0.6817
+         native        0.6261  0.6593  0.6674  0.6816
+         typed_tree    0.6232  0.6606  0.6686  0.6822
+로지스틱     WOE           0.6153  0.6574  0.6646  0.6679
+         median        0.5350  0.6425  0.6608  0.5079
+         median_flags  0.5805  0.6513  0.6581  0.5191
+         typed_linear  0.5747  0.6518  0.6585  0.5182
+연도                       2013    2014    2015    2016
+모델       결측 처리                                       
+LightGBM median        0.0096  0.0108  0.0080  0.0113
+         median_flags  0.0117  0.0106  0.0077  0.0111
+         native        0.0120  0.0104  0.0077  0.0111
+         typed_tree    0.0116  0.0106  0.0080  0.0114
+로지스틱     WOE           0.0098  0.0089  0.0039  0.0031
+         median        0.0111  0.0107  0.0054 -0.0068
+         median_flags  0.0099  0.0104  0.0056 -0.0077
+         typed_linear  0.0098  0.0105  0.0056 -0.0077
+판정: LightGBM -> native
+판정: 로지스틱 -> WOE
+총 3.2분

@@ -1,0 +1,13 @@
+,,순위상관
+fico_range_low,fico_range_high,1.0
+loan_amnt,funded_amnt,1.0
+funded_amnt,funded_amnt_inv,0.998
+open_acc,num_sats,0.998
+loan_amnt,funded_amnt_inv,0.998
+num_actv_rev_tl,num_rev_tl_bal_gt_0,0.99
+tot_cur_bal,tot_hi_cred_lim,0.976
+funded_amnt,installment,0.967
+loan_amnt,installment,0.966
+funded_amnt_inv,installment,0.965
+total_bal_il,total_il_high_credit_limit,0.958
+tot_cur_bal,avg_cur_bal,0.928
