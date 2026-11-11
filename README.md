@@ -44,6 +44,7 @@
 | 25~26 | 짝 부트스트랩, 종결 편향 시뮬레이션(검증) | 완료 (eda-fe-models 브랜치) |
 | 27~29 | 컬럼 사전 최신화, funded_amnt_inv 민감도, 같은 금액 투자 민감도 | 완료 (eda-fe-models 브랜치) |
 | 30 | 발행월별 포트폴리오 Sharpe 검증(팀원 제안서) | 완료 (eda-fe-models 브랜치) |
+| 31 | 절충 규칙 3종(탐색) | 완료 (eda-fe-models 브랜치) |
 
 ## 결정 기록
 각 단계에서 무엇을 왜 골랐는지 `docs/decisions.md`에 남긴다.
