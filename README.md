@@ -46,6 +46,7 @@
 | 30 | 발행월별 포트폴리오 Sharpe 검증(팀원 제안서) | 완료 (eda-fe-models 브랜치) |
 | 31 | 절충 규칙 3종(탐색) | 완료 (eda-fe-models 브랜치) |
 | 32 | Sharpe 정의 세 가지의 크기, Sharpe로 고른 승인비율 | 완료 (eda-fe-models 브랜치) |
+| 33 | Sortino, NPV, 등급 중립 롱숏, 등급별 Sharpe | 완료 (eda-fe-models 브랜치) |
 
 ## 결정 기록
 각 단계에서 무엇을 왜 골랐는지 `docs/decisions.md`에 남긴다.
