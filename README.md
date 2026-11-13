@@ -47,6 +47,7 @@
 | 31 | 절충 규칙 3종(탐색) | 완료 (eda-fe-models 브랜치) |
 | 32 | Sharpe 정의 세 가지의 크기, Sharpe로 고른 승인비율 | 완료 (eda-fe-models 브랜치) |
 | 33 | Sortino, NPV, 등급 중립 롱숏, 등급별 Sharpe | 완료 (eda-fe-models 브랜치) |
+| 34 | 근본 가정 재점검 6가지, 단순 규칙 동점 진단 | 완료 (eda-fe-models 브랜치) |
 
 ## 결정 기록
 각 단계에서 무엇을 왜 골랐는지 `docs/decisions.md`에 남긴다.
