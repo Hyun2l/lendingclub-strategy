@@ -1,0 +1,86 @@
+\chapter{파이썬, numpy, pandas: 이 코드에 나오는 것만}
+
+이 장은 문법 교과서가 아니다. 프로젝트 코드에 \textbf{실제로 나오는 것만} 모았다. 모르는 기호가 나오면 이 장으로 돌아온다.
+
+\section{파이썬 기본 여섯 가지}
+\begin{lstlisting}
+QS = [0.1, 0.2, 0.3]                  # list: ordered values, QS[0] is 0.1
+hurdles = {'tb': 0.015, 'baa': 0.05}  # dict: name -> value, hurdles['tb']
+for q in QS:                          # loop: q takes each value in turn
+    print(f'approve {q:.0%}')         # f-string: {q:.0%} prints 10%
+sharpe = lambda x: x.mean() / x.std(ddof=1)   # one-line function
+def cut(score, q):                    # normal function
+    return score >= 0.5
+\end{lstlisting}
+\begin{itemize}[leftmargin=*]
+\item \textbf{1번 줄} 리스트: 대괄호, 순서가 있다. 번호는 0부터 센다.
+\item \textbf{2번 줄} 딕셔너리: 중괄호, ``이름: 값'' 짝이다. \ft{hurdles.items()}는 (이름, 값) 짝을 하나씩 준다.
+\item \textbf{3--4번 줄} \ft{for}: 들여쓰기(공백 4칸)한 줄들이 반복된다. 파이썬은 \textbf{들여쓰기가 문법}이라, 칸이 틀리면 오류가 난다.
+\item \textbf{4번 줄} f-문자열: 따옴표 앞 \ft{f}, 중괄호 안에 변수. \ft{:.2f}는 소수 둘째 자리, \texttt{:.0\%}는 백분율이다.
+\item \textbf{5번 줄} \ft{lambda}: 이름 없는 한 줄 함수. ``\ft{x}를 받아 평균 \ensuremath{\div} 표준편차를 돌려준다''.
+\item \textbf{6--7번 줄} \ft{def}: 여러 줄 함수. \ft{return} 뒤가 결과다.
+\end{itemize}
+그 밖에 자주 나오는 것:
+\begin{itemize}[leftmargin=*]
+\item \ft{[f(x) for x in xs]}: ``xs의 각 x에 f를 적용한 리스트''(리스트 컴프리헨션).
+\item \ft{a, b = 1, 2}: 한 번에 두 변수.
+\item \ft{x if cond else y}: 조건에 따라 x 또는 y.
+\item \ft{**dict}: 딕셔너리를 펼쳐 넣기. \texttt{\{'a': 1, **row\}}는 \ft{row}의 내용을 합친 새 딕셔너리다.
+\end{itemize}
+
+\section{numpy: 숫자 배열을 한 번에}
+\ft{np.array}는 숫자를 줄지어 담은 배열이다. 핵심은 \textbf{반복문 없이 전체에 한 번에 계산한다}는 것이다.
+\begin{lstlisting}
+import numpy as np
+r = np.array([0.07, 0.11, 0.15])
+bad = np.array([0, 1, 0])
+r * 100                      # [7, 11, 15]  every element at once
+np.where(bad == 1, 0.0, r)   # [0.07, 0, 0.15]  if default then 0 else rate
+np.quantile(r, 0.7)          # 70th percentile
+r >= np.quantile(r, 0.7)     # [False, False, True]  boolean array
+r[r > 0.1]                   # [0.11, 0.15]  keep where True
+rng = np.random.default_rng(11)   # random generator with a fixed seed
+rng.random(3)                # 3 numbers in [0, 1), same every run
+\end{lstlisting}
+\begin{itemize}[leftmargin=*]
+\item \textbf{4번 줄}: 배열 \ensuremath{\times} 숫자는 원소마다 곱한다.
+\item \textbf{5번 줄} \ft{np.where(조건, 참일 때, 거짓일 때)}: 엑셀의 IF를 배열 전체에 한 번에 한다.
+\item \textbf{6--7번 줄} 분위수: \ft{np.quantile(s, 1 - q)} 이상이면 ``상위 $q$''다. 상위 30\%를 고르려면 70\% 분위수 이상을 고른다. 이 프로젝트의 모든 승인 규칙이 이 한 줄이다.
+\item \textbf{8번 줄}: 참/거짓 배열을 대괄호에 넣으면 참인 자리만 남는다.
+\item \textbf{9--10번 줄}: seed(씨앗)를 고정하면 ``무작위''도 매번 같은 값이 나와 결과를 재현할 수 있다. 코드의 \ft{default_rng(2026)}, \ft{default_rng(500 + k)}가 모두 이것이다.
+\end{itemize}
+\paragraph{자주 나오는 함수.} \ft{x.mean()} 평균, \ft{x.std(ddof=1)} 표본 표준편차(\ft{ddof=1}은 $n-1$로 나눈다는 뜻), \ft{x.sum()}, \ft{np.zeros(n, bool)} 거짓 $n$개, \ft{np.ones}, \ft{np.arange(5)}는 0--4, \ft{np.isclose(a, b)}는 소수 비교(0.8과 0.80000001을 같다고 본다).
+\paragraph{2차원 배열과 \ft{axis}.} \ft{x[BIX]}처럼 번호 표로 뽑으면 표 모양 배열이 된다. \ft{.mean(axis=1)}은 \textbf{행마다} 평균, \ft{axis=0}은 \textbf{열마다} 평균이다. 10장의 부트스트랩에서 쓴다.
+
+\section{pandas: 엑셀 표를 코드로}
+\ft{pd.DataFrame}은 행과 열이 있는 표, 열 하나는 \ft{Series}다.
+\begin{lstlisting}
+import pandas as pd
+df['r']                          # one column (Series)
+df[['id', 'r']]                  # several columns (DataFrame)
+df['bad'] = (df['status'] == 'Charged Off').astype(int)   # new column
+df[df['grade'] == 'A']           # rows where condition is True
+df.loc[rows, 'r']                # by label     df.iloc[3]  by position
+df['r'].to_numpy()               # Series -> numpy array
+df.groupby('ym')['amt'].sum()    # sum per issue month
+df.groupby('ym').indices         # {month: array of row positions}
+d.merge(tb, on=['ym', 'term_m'], how='left')   # VLOOKUP
+\end{lstlisting}
+\begin{itemize}[leftmargin=*]
+\item \textbf{4번 줄}: 비교(\ft{==})는 참/거짓 열을 만들고, \ft{.astype(int)}가 1/0으로 바꾼다. 부도 여부 \ft{bad}가 이렇게 만들어진다.
+\item \textbf{5번 줄}: 조건을 여러 개 묶을 때는 \texttt{\&}(그리고), \ft{|}(또는), \texttt{\textasciitilde}(아님)을 쓰고 \textbf{각 조건을 괄호로 감싼다}. \ft{and}/\ft{or}를 쓰면 오류가 난다.
+\item \textbf{6번 줄} \ft{loc}은 이름표(인덱스) 기준, \ft{iloc}은 0부터 센 위치 기준이다. 코드가 \ft{reset_index(drop=True)}를 자주 하는 이유는 이름표를 0, 1, 2, \ldots{}로 다시 매겨 둘을 같게 만들기 위해서다.
+\item \textbf{7번 줄}: 계산을 빠르게 하려고 열을 numpy 배열로 바꾼다. 예를 들어 \ft{P_amt}는 \ft{funded_amnt} 열을 배열로 바꾼 것이다.
+\item \textbf{9번 줄} \ft{groupby().indices}: \textbf{이 프로젝트에서 가장 중요한 pandas 표현}이다. ``발행월마다 그 달 대출의 행 번호''를 준다. 발행월마다 자르기(8장), 발행월마다 IRR(9장)이 모두 이것을 돈다.
+\item \textbf{10번 줄} \ft{merge}: 엑셀의 VLOOKUP. 발행월과 만기가 같은 국채 금리를 대출 옆에 붙인다(6장).
+\end{itemize}
+
+\begin{workout}[따라 해 보기: \ft{snippets.py groupby}]
+6건짜리 표로 달마다 합계, 등급별 부도율, 달마다 행 번호를 본다. 출력의 마지막 두 줄:
+\begin{lstlisting}[style=out]
+2013-01 -> rows [0 1 2]
+2013-02 -> rows [3 4 5]
+\end{lstlisting}
+\Ans{1월 대출은 0--2번 행, 2월 대출은 3--5번 행이다. 이후 모든 ``발행월마다''는 이 행 번호 묶음을 하나씩 도는 것이다.}
+\end{workout}
+\Trap{\ft{df[df['r'] > 0.1 and df['grade'] == 'A']}. pandas에서는 \texttt{(df['r'] > 0.1) \& (df['grade'] == 'A')}로 써야 한다.}

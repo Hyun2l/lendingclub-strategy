@@ -1,0 +1,66 @@
+\chapter{시작 전에: 지도와 실행법}
+
+\section{이 문서를 읽는 법}
+코드를 처음부터 끝까지 외울 필요는 없다. 이 프로젝트의 코드는 결국 \textbf{여섯 단계를 한 줄로 이은 것}이다. 각 장은 한 단계를 맡고, 같은 순서로 쓴다.
+\begin{enumerate}[leftmargin=*]
+\item \textbf{무엇을 하려는가}(한 문단).
+\item \textbf{실제 코드}(줄 번호 포함).
+\item \textbf{줄별 설명}(``3번 줄'' 식으로 짚는다).
+\item \textbf{따라 해 보기}: 데이터 없이 도는 작은 예제와 그 출력.
+\item \textbf{흔한 실수}.
+\end{enumerate}
+
+\begin{keybox}[전체 흐름 한 장]
+\small\begin{tabularx}{\linewidth}{@{}p{5mm}Lp{40mm}@{}}\toprule
+단계 & 하는 일 & 파일\\\midrule
+1 & CSV를 읽어 상태를 ``상환/부도''로 정리, 미래 정보 제거 & \ft{src/lc/data.py}\\
+2 & 그 시점에 결과를 알 수 있던 대출만 학습에 쓰기 & \ft{src/lc/asof.py}\\
+3 & LightGBM으로 부도확률 $p$ 만들기 & scripts 23, 30번\\
+4 & $p$를 기대수익 점수로 바꾸고 발행월마다 상위 $q$ 승인 & scripts 30, 38, 39번\\
+5 & 승인한 묶음의 실제 현금흐름으로 IRR 채점 & \ft{src/lc/returns.py}\\
+6 & 매달 초과수익 \ensuremath{\to} Sharpe, 부트스트랩, 1-SE 선택, 파레토 & scripts 39, 41번\\\bottomrule
+\end{tabularx}
+\Intuit{예상(점수)으로 고르고, 실제 결과(IRR)로 채점하고, 그 채점표를 48개월 모아 Sharpe를 낸다.}
+\end{keybox}
+
+\section{폴더 구조}
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{@{}p{38mm}L@{}}\toprule
+위치 & 들어 있는 것\\\midrule
+\ft{src/lc/} & 여러 스크립트가 같이 쓰는 \textbf{함수 모음}(라이브러리). 데이터 정리, 시점 학습, 수익률, 비교 기준\\
+\ft{scripts/NN_이름.py} & 실험 하나 = 파일 하나. 번호가 실험 순서다. 실행하면 \ft{results/}에 표와 로그를 남긴다\\
+\ft{results/} & 실행 결과(\ft{.csv}, \ft{.log}). 문서의 숫자는 모두 여기서 나온다\\
+\ft{docs/} & 결정 기록(\ft{decisions.md}), 연구 노트(\ft{research_log.md}), test 규칙(\ft{test_protocol*.md}), 보고서\\
+\ft{data/} & 원본 CSV, 변환한 parquet, 국채·\allowbreak{}회사채 금리(\ft{external/})\\\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{실행하는 법}
+터미널(맥은 ``터미널'' 앱)을 열고 저장소 폴더로 이동한 뒤 실행한다. 이 컴퓨터는 conda 환경 \ft{cmapss}의 파이썬을 쓴다.
+\begin{lstlisting}[language=bash,numbers=none]
+cd ~/Desktop/learningClub
+conda activate cmapss                       # once per terminal window
+python scripts/39_final_choice.py           # one experiment (a few minutes)
+python docs/notes/code/snippets.py irr      # one practice example (instant)
+\end{lstlisting}
+\begin{warnbox}[python을 못 찾는다고 나오면]
+\ft{command not found: python}은 conda 환경을 켜지 않았다는 뜻이다. \ft{conda activate cmapss}를 먼저 하거나, 전체 경로 \ft{/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/bin/python}으로 실행한다. 맥 기본 \ft{python3}에는 LightGBM이 없다.
+\end{warnbox}
+
+\section{스크립트 맨 위의 두 가지 특이한 줄}
+거의 모든 스크립트가 이렇게 시작한다.
+\begin{lstlisting}
+import _path  # noqa: F401
+from pathlib import Path
+
+SRC = (Path(__file__).parent / '30_portfolio_sharpe.py').read_text()
+exec(SRC[:SRC.index("sharpe = lambda")])
+\end{lstlisting}
+\begin{itemize}[leftmargin=*]
+\item \textbf{1번 줄} \ft{import _path}: \ft{scripts/_path.py}는 ``\ft{src/} 폴더도 찾아봐라''라고 파이썬에 알려 주는 세 줄짜리 파일이다. 그래서 다음 줄부터 \ft{from lc import returns}처럼 라이브러리를 불러올 수 있다. \ft{# noqa}는 ``안 쓰는 import라고 경고하지 마''라는 표시일 뿐이다.
+\item \textbf{4번 줄}: 30번 스크립트의 \textbf{내용을 글자로} 읽는다. \ft{Path(__file__).parent}는 ``지금 이 파일이 있는 폴더''다.
+\item \textbf{5번 줄}: 그 글자 중 \ft{"sharpe = lambda"}가 나오기 \textbf{직전까지만} 잘라(\ft{SRC[:위치]}) 실행한다(\ft{exec}). 30번의 앞부분은 데이터를 읽고 모델을 학습해 \ft{ev} 표를 만드는 부분이다. 결국 ``30번이 만든 \ft{ev}를 그대로 이어받아 쓴다''는 뜻이다.
+\end{itemize}
+\begin{warnbox}[왜 이렇게 하나, 무엇을 조심하나]
+같은 학습 코드를 복사하지 않으려는 지름길이다. 대신 \textbf{앞 스크립트의 변수 이름이 갑자기 나타난다}(\ft{ev}, \ft{months}, \ft{TB} 등). 처음 보는 변수가 있으면 \ft{exec}한 파일에서 찾는다. 39번은 30번을, 41번은 39번을, 40번은 35번을, 35번은 15번을 이어받는다. 또 앞 파일에서 자르는 기준 문자열이 바뀌면 \ft{ValueError: substring not found}가 난다.
+\end{warnbox}

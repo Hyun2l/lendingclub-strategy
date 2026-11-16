@@ -1,0 +1,123 @@
+\documentclass[10pt]{report}
+\input{neuron-style}
+\usepackage{multicol}
+\newgeometry{margin=12mm}
+\pagestyle{empty}
+\setlength{\columnsep}{6mm}
+\setlist{nosep,leftmargin=*}
+\newcommand{\ft}[1]{\texttt{\detokenize{#1}}}
+\begin{document}
+\begin{center}{\Large\bfseries 개념 치트시트: 신용 대출 선별 전략을 검증하는 법}\\[2pt]
+{\footnotesize LendingClub 프로젝트에서 쓴 개념을 다른 과제에도 쓸 수 있게 정리 \ensuremath{\cdot} 숫자는 이 프로젝트 train(2013--16, 36개월) 결과 \ensuremath{\cdot} 2026-11-16}\end{center}
+\raggedcolumns
+\titlespacing*{\subsection}{0pt}{6pt}{2pt}
+\begin{multicols}{2}\raggedright\small
+
+\begin{keybox}[딱 이것만]
+\begin{enumerate}
+\item \textbf{예상으로 고르고, 실제로 채점한다.} 점수(승인일에 아는 정보)와 IRR(끝난 뒤 실제 현금흐름)을 섞지 않는다.
+\item \textbf{같은 비율 무작위와 비교한다.} 시장과 승인비율을 맞춰야 ``고르는 실력''만 남는다.
+\item \textbf{그때 알던 것만 쓴다.} 학습도, 승인 컷도 시점을 지킨다.
+\item \textbf{판정 기준은 결과 전에 적고 커밋한다.} test는 한 번만 본다.
+\end{enumerate}
+\end{keybox}
+
+\subsection*{1. 고르는 점수}
+\begin{formulabox}[기대수익 점수]
+$s=(1-p)\,r-p\cdot\mathrm{LGD}-tb$\\
+$p$ 부도확률, $r$ 약정 금리, LGD 부도 시 손실률(약 0.5--0.6), $tb$ 같은 달 같은 만기 국채.
+\end{formulabox}
+\begin{itemize}
+\item 부도확률만 보면 늘 안전한 대출을 사지만, 위험에 비해 금리가 후한 고금리 대출을 놓친다.
+\item 1년 단위 근사라 \textbf{순위용}이다. 정확한 예상 수익으로 읽지 않는다.
+\end{itemize}
+
+\subsection*{2. 채점: IRR}
+\begin{itemize}
+\item 현금흐름 $c_0<0, c_1, \ldots$에서 $\sum_t c_t/(1+m)^t=0$인 월 $m$, 연 $(1+m)^{12}-1$.
+\item \textbf{묶음 IRR}: 현금흐름을 먼저 합치고 IRR을 한 번 구한다. IRR들의 평균과 다르다.
+\item 한 건짜리 IRR은 부도 시 $-70\%$처럼 극단이라, 건별 통계에 그대로 쓰지 않는다.
+\item 수수료 1\%(받은 돈마다)가 연 약 0.8\%p를 깎는다.
+\end{itemize}
+
+\subsection*{3. 선별 가치(주 지표)}
+\begin{formulabox}
+$\mathrm{SV}=\frac19\sum_{q=10\%}^{90\%}\big[\overline{(\mathrm{IRR}-tb)}_{\text{상위 }q}-\overline{(\mathrm{IRR}-tb)}_{\text{무작위 }q}\big]$
+\end{formulabox}
+\begin{itemize}
+\item 발행월마다 자르고, 9개 비율을 평균한다(유리한 비율 하나를 고르지 못하게).
+\item 결과: \textbf{+1.07\%p}(90\% 0.94--1.21), 48개월 전부 양수.
+\item \textbf{위약 점검}: 무작위 점수를 넣으면 0 근처여야 한다.
+\end{itemize}
+
+\subsection*{4. 성과를 나누는 도구}
+\begin{itemize}
+\item \textbf{Brinson}: 초과 = 배분(좋은 등급을 많이 샀나) + 선별(같은 등급 안에서 잘 골랐나) + 상호작용.
+\item \textbf{등급 중립 롱숏}: 매달 등급마다 신호 상위 30\% $-$ 하위 30\%. 등급과 시장이 지워져 \textbf{등급 안 선별}만 남는다(측정 도구일 뿐 실제 전략은 아님). 기대수익 신호 +2.38\%p.
+\end{itemize}
+
+\subsection*{5. Sharpe는 정의부터}
+\begin{tabularx}{\linewidth}{@{}p{24mm}X@{}}\toprule
+정의 & 특징(우리 값)\\\midrule
+건별, 거절 = 0 & 승인비율만 줄여도 값이 변한다. 선택 기준으로 부적합(0.03--0.15)\\
+건별, 승인만 & 조교 기준 0.2--0.4와 크기가 맞는다(0.10--0.34)\\
+\textbf{발행월 포트폴리오} & 매달 비중 $w$ \ensuremath{\times} (묶음 IRR $-$ 허들), 48개월 평균 \ensuremath{\div} 표준편차. $w$가 지워진다(약 2--4)\\\bottomrule
+\end{tabularx}
+\begin{warnbox}[자르는 단위]
+연도 단위로 상위 $q$를 자르면 달마다 $w$가 들쭉날쭉해 포트폴리오 Sharpe가 깎인다(2.46 vs 발행월 2.91). 실전에서도 12월을 보고 1월을 정할 수 없다. \textbf{발행월마다 자른다.}
+\end{warnbox}
+\begin{itemize}
+\item \textbf{허들}에 따라 1위가 바뀐다. 국채면 부도확률 순, BAA면 기대수익 순이 Sharpe 1위다. 허들별로 모두 보고한다.
+\item Sortino는 순위가 Sharpe와 같아 새 정보가 없었다.
+\end{itemize}
+
+\subsection*{6. 시점 학습(as-of)}
+\begin{itemize}
+\item 기준일 $C$의 학습 표본 = $C$ 전에 발행 $\wedge$ 결과 확정 $\wedge$ 확정 시점 $\le C$.
+\item 확정 시점: 상환은 마지막 납부월, 부도는 그 뒤 5개월(150일 연체 후 상각).
+\item \textbf{종결 편향}: 최근 발행분 중 이미 끝난 대출은 대부분 조기상환이다. 만기 도달 비율이 0.9 미만인 해는 따로 보고한다.
+\item \textbf{누수}: 받은 총액, 회수금, 마지막 납부일 등 승인 후 정보는 채점에만 쓰고 모델에는 넣지 않는다.
+\end{itemize}
+
+\subsection*{7. 불확실성}
+\begin{itemize}
+\item \textbf{이동 블록 부트스트랩}: 6개월 덩어리로 48개월을 2000번 다시 뽑는다. 이웃 달의 상관을 보존한다.
+\item \textbf{짝지은 비교}: 같은 가상 표본에서 두 전략의 차이를 계산한다. 공통 흔들림이 지워져 구간이 좁다(Sharpe SE 0.8 vs 차이 구간 폭 0.25).
+\item 판정은 \textbf{90\% 구간 하한 > 0}으로, 크기보다 방향과 구간을 본다.
+\end{itemize}
+
+\subsection*{8. 여러 후보 중 고르기: 1-SE 규칙}
+\begin{enumerate}
+\item 후보마다 지표와 SE를 구한다.
+\item 최고값 $-$ 그 SE 이상인 후보 = 허용 범위(동등성 검정 아님).
+\item 그중 \textbf{가장 단순하거나 규모가 큰} 것을 고른다(여기서는 승인비율 최대).
+\end{enumerate}
+결과: 최고 부도확률 순 10\%(3.82, SE 0.84) \ensuremath{\to} 기준선 2.98 \ensuremath{\to} \textbf{부도확률 순 80\%(3.06)}. 무작위보다 +0.34(0.30--0.55). 짝지어 보면 10\%가 0.76 높다(구분됨): Sharpe를 내주고 규모(약 8.5배)를 얻는 선택이다.
+
+\subsection*{9. 두 축과 파레토}
+\begin{itemize}
+\item Sharpe = 평균 \ensuremath{\div} 표준편차이므로 \textbf{세 번째 목표가 아니다}. 축은 수익(평균)과 흔들림(표준편차) 둘이다.
+\item \textbf{지배}: 수익은 같거나 높고 흔들림은 같거나 낮으며, 하나는 엄격히 나음. 둘 다 나쁜 조합은 뺀다.
+\item \textbf{같은 승인비율 안에서} 비교한다. 비율이 바뀌면 규모와 구성이 함께 바뀌고, 비율을 섞으면 거의 다 비지배라 걸러 내지 못한다.
+\item 결과: 기대수익 순 대 부도확률 순은 진짜 맞교환(서로 지배 안 함). 단순 규칙은 30--50\%에서 부도확률 순을 지배(사후 규칙, test로 확인).
+\end{itemize}
+
+\subsection*{10. 정직한 검증 습관}
+\begin{itemize}
+\item \textbf{사전 등록}: 판정 기준을 실험 전에 적고 git 태그로 고정한다(v1 \ensuremath{\to} v2 \ensuremath{\to} v2.1 \ensuremath{\to} v2.2). 개정은 test 전에만 하고, 이유를 남긴다.
+\item \textbf{주장 장부}: 주장마다 근거 파일, 상태(잠정, 철회), 확인 방법을 적는다.
+\item \textbf{사후 규칙}: 데이터를 보고 찾은 규칙은 과대평가된다. 후보에서 빼고 도전자로만 검증한다.
+\item \textbf{독립 재구현}: 핵심 숫자는 같은 함수를 재사용하지 말고 다르게 한 번 더 계산한다(연도 컷 실수를 이렇게 놓쳤다).
+\item \textbf{동점 점검}: 정수 점수는 동점이 많다. 고른 뒤 실제 승인비율을 확인한다.
+\end{itemize}
+
+\subsection*{11. 다른 과제에 옮겨 쓰기}
+\begin{tabularx}{\linewidth}{@{}p{22mm}X@{}}\toprule
+상황 & 바꿔 끼울 것\\\midrule
+다른 대출 데이터 & 상태 분류, LGD, 상각 지연 개월\\
+주식 선별 & 점수 = 예상 수익, IRR \ensuremath{\to} 월 수익률, 등급 \ensuremath{\to} 업종\\
+마케팅 타깃 & 점수 = 반응확률 \ensuremath{\times} 이익 $-$ 비용, 무작위 발송과 비교\\
+어떤 모델이든 & 같은 비율 무작위 기준선, 시점 분할, 블록 부트스트랩, 사전 등록\\\bottomrule
+\end{tabularx}
+\end{multicols}
+\end{document}

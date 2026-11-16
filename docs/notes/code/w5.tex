@@ -1,0 +1,135 @@
+\chapter{Sharpe, 불확실성, 최종 선택, test}
+
+\section{발행월 포트폴리오 초과수익: \texttt{port\_series}}
+\begin{lstlisting}
+def port_series(a, hurdle):
+    out = []
+    for m in months:
+        ix = grp[m]
+        sel = ix[a[ix]]
+        r = returns.pooled_irr(ev.iloc[sel], fee=FEE) - hurdle[ix].mean() if len(sel) else 0.0
+        out.append(P_amt[sel].sum() / P_amt[ix].sum() * r)
+    return np.array(out)
+
+sharpe = lambda x: x.mean(axis=-1) / x.std(axis=-1, ddof=1)
+\end{lstlisting}
+\begin{itemize}[leftmargin=*]
+\item \textbf{3--4번 줄}: 48개 발행월을 차례로 돈다. \ft{grp = ev.groupby('ym').indices}(30번에서 만듦)라서 \ft{grp[m]}은 그 달 행 번호다.
+\item \textbf{5번 줄}: 그 달 대출 중 승인된 것만 남긴다. \ft{a[ix]}는 그 달 대출들의 승인 여부이고, 그것으로 \ft{ix}를 거른다.
+\item \textbf{6번 줄}: 승인 묶음의 IRR(수수료 1\%)에서 그 달 허들(국채 등)을 뺀다. 승인이 하나도 없으면 0이다.
+\item \textbf{7번 줄} \textbf{핵심}: 그 달 포트폴리오 초과수익 = (승인 금액 \ensuremath{\div} 그 달 전체 금액) \ensuremath{\times} 초과수익. 거절한 돈은 국채에 넣었다고 보므로 그 부분의 초과수익은 0이다.
+\item \textbf{10번 줄}: Sharpe = 48개 값의 평균 \ensuremath{\div} 표준편차. \ft{axis=-1}은 ``마지막 축으로''라는 뜻이다. 1차원이면 그냥 전체이고, 2차원(부트스트랩 표)이면 행마다 계산한다.
+\end{itemize}
+\begin{workout}[따라 해 보기: \ft{snippets.py sharpe}]
+\begin{lstlisting}[style=out]
+share 0.3: mean 0.0124, std 0.0053, Sharpe 2.33
+share 0.8: mean 0.0331, std 0.0142, Sharpe 2.33
+\end{lstlisting}
+\Ans{비중을 0.3에서 0.8로 바꾸면 평균과 표준편차가 모두 같은 배수로 커져 Sharpe는 그대로다. 그래서 승인비율 사이의 Sharpe 차이는 ``얼마나 샀나''가 아니라 ``얼마나 까다롭게 골랐나''의 차이다. 같은 이유로 파레토 비교는 같은 승인비율 안에서 한다(아래).}
+\end{workout}
+
+\section{이동 블록 부트스트랩: 표준오차와 구간}
+\textbf{하려는 것.} 48개월은 짧다. ``다른 48개월이 왔다면 Sharpe가 얼마나 달랐을까''를 알려고, 있는 달들을 다시 뽑아 가상의 48개월을 2000번 만든다. 이웃한 달끼리 비슷하므로(경기 흐름) 한 달씩이 아니라 \textbf{6개월 덩어리}로 뽑는다.
+\begin{lstlisting}
+n = len(months)                                   # 48
+st = np.random.default_rng(2026).integers(0, n - BLOCK + 1, size=(B, int(np.ceil(n / BLOCK))))
+BIX = np.concatenate([np.arange(BLOCK)[None, :] + st[:, [j]] for j in range(st.shape[1])], axis=1)[:, :n]
+
+se = sharpe(port[BIX]).std(ddof=1)                # standard error of Sharpe
+diff_bs = sharpe(ch[BIX]) - np.mean([sharpe(r[BIX]) for r in rnd], axis=0)
+lo, hi = np.quantile(diff_bs, 0.05), np.quantile(diff_bs, 0.95)   # 90% interval
+\end{lstlisting}
+\begin{itemize}[leftmargin=*]
+\item \textbf{2번 줄}: 덩어리 시작점을 무작위로 뽑는다. 크기는 (2000번) \ensuremath{\times} (덩어리 8개)이고, 시작점은 0--42 사이다(덩어리가 48을 넘지 않게).
+\item \textbf{3번 줄}: 시작점 $s$를 $s, s+1, \ldots, s+5$로 늘여 이어 붙인다. 결과 \ft{BIX}는 2000행 \ensuremath{\times} 48열의 ``달 번호 표''다. 행 하나가 가상의 48개월 하나다.
+\item \textbf{5번 줄}: \ft{port[BIX]}는 2000 \ensuremath{\times} 48 표다. 행마다 Sharpe를 내면 2000개의 Sharpe가 나오고, 그 흩어짐(표준편차)이 \textbf{표준오차(SE)}다.
+\item \textbf{6번 줄} \textbf{짝지은 비교}: 같은 가상 48개월(같은 \ft{BIX} 행)에서 선택안과 무작위를 함께 계산해 차이를 낸다. 시장 전체가 좋았던 달 같은 공통 흔들림이 차이에서 지워져, 차이의 구간이 각각의 SE보다 훨씬 좁다.
+\item \textbf{7번 줄}: 2000개 차이의 하위 5\%와 상위 5\%가 90\% 구간이다. 하한이 0보다 크면 ``거의 확실히 무작위보다 낫다''.
+\end{itemize}
+\begin{workout}[따라 해 보기: \ft{snippets.py boot}]
+\ft{n=12, block=3, B=3}으로 줄여 본 \ft{BIX}:
+\begin{lstlisting}[style=out]
+[[ 8  9 10  1  2  3  0  1  2  6  7  8]
+ [ 3  4  5  4  5  6  0  1  2  3  4  5]
+ [ 6  7  8  3  4  5  8  9 10  7  8  9]]
+\end{lstlisting}
+\Ans{행마다 세 달씩 연속인 덩어리 네 개가 이어져 있다. 같은 달이 두 번 뽑히기도 하고(복원 추출), 안 뽑히는 달도 있다.}
+\end{workout}
+
+\section{1-SE 규칙으로 최종 제안 고르기: 39번}
+\begin{lstlisting}
+best = C.loc[C['Sharpe'].idxmax()]
+ok = C[C['Sharpe'] >= best['Sharpe'] - best['SE']]
+pick = ok.sort_values(['q', 'Sharpe'], ascending=[False, False]).iloc[0]
+\end{lstlisting}
+\begin{itemize}[leftmargin=*]
+\item \ft{C}는 후보 18개(전략 2 \ensuremath{\times} 승인비율 9)의 Sharpe와 SE 표다.
+\item \textbf{1번 줄} \ft{idxmax()}: Sharpe가 가장 큰 행의 이름표. \ft{loc}으로 그 행을 꺼낸다.
+\item \textbf{2번 줄}: (최고 Sharpe $-$ 그 SE) 이상인 후보만 남긴다. 1위 하나의 SE로 그은 허용 범위이고, 두 후보의 차이를 검정한 것은 아니다.
+\item \textbf{3번 줄}: 승인비율 큰 순, 같으면 Sharpe 큰 순으로 정렬해 첫 줄(\ft{iloc[0]})을 고른다.
+\end{itemize}
+\begin{workout}[따라 해 보기: \ft{snippets.py onese}]
+\begin{lstlisting}[style=out]
+best A 0.1: 3.8 - SE 0.8 = bar 3.0
+pass: [['A', 0.1], ['A', 0.5], ['B', 0.5]]
+pick: A 0.5
+\end{lstlisting}
+\Ans{최고는 A 10\%지만 기준선 3.0 이상인 후보 중 승인비율이 가장 큰 50\%에서, Sharpe가 더 높은 A를 고른다. 실제 결과(train)도 같은 구조였다. 최고는 부도확률 순 10\%(3.82, SE 0.84), 기준선은 2.98, 최종 제안은 부도확률 순 80\%(3.06)다.}
+\end{workout}
+\begin{whybox}[왜 최고값을 그냥 고르지 않나]
+18개를 비교하면 운 좋게 높게 나온 후보가 1위가 되기 쉽다(다중 비교). 그래서 1위에서 조금 모자란 범위까지는 \textbf{규모가 큰 쪽}을 고르기로 미리 정했다. 머신러닝에서 규제 강도를 고를 때 쓰는 ``one-standard-error rule''과 같은 생각이다.
+
+\textbf{주의:} 이 범위는 ``1위와 통계적으로 같다''는 뜻이 아니다. 차이를 보려면 같은 가상 표본에서 두 후보의 차이를 구해야 한다(위 부트스트랩의 짝지은 비교). 실제로 짝지어 보면 부도확률 순 10\% $-$ 80\%는 0.76(90\% 0.45--1.60)으로 구분된다. 그러니 1-SE 규칙은 \textbf{Sharpe를 조금 내주고 규모를 얻는 미리 정한 선택 규칙}으로 읽는다.
+\end{whybox}
+
+\section{파레토: 41번의 \texttt{dominated}}
+\begin{lstlisting}
+def dominated(mean, std):
+    m, s = np.asarray(mean), np.asarray(std)
+    return np.array([bool(((m >= m[i]) & (s <= s[i]) & ((m > m[i]) | (s < s[i]))).any())
+                     for i in range(len(m))])
+\end{lstlisting}
+\textbf{3번 줄}은 후보 $i$마다 ``평균은 같거나 높고, 표준편차는 같거나 낮고, 둘 중 하나는 엄격히 나은 다른 후보가 하나라도(\ft{.any()}) 있나''를 묻는다. 있으면 $i$는 지배당한다(둘 다 나쁜 조합이라 뺀다).
+\begin{workout}[따라 해 보기: \ft{snippets.py pareto}, 숫자는 train 승인 30\%]
+\begin{lstlisting}[style=out]
+ER frontier
+lowPD dominated
+simple frontier
+random dominated
+\end{lstlisting}
+\Ans{단순 규칙(평균 1.84, 표준편차 0.48)이 부도확률 순(1.66, 0.50)보다 수익도 높고 흔들림도 작아 부도확률 순을 지배한다. 기대수익 순(1.88, 0.65)은 수익이 가장 높아 경계에 남는다. 다만 단순 규칙은 train을 보고 고른 규칙이라 test에서 확인해야 한다.}
+\end{workout}
+
+\section{test 실행: 40 \ensuremath{\to} 35 \ensuremath{\to} 15}
+\begin{lstlisting}[language=bash,numbers=none]
+python scripts/40_test_evaluate_v2_2.py --dry-run          # rehearsal on train
+python scripts/40_test_evaluate_v2_2.py data/raw/test.csv  # the real test, once
+\end{lstlisting}
+40번은 35번 전체를 실행하고(35번은 다시 15번을 실행한다), 그 위에 v2.2 판정을 덧붙인다. 그래서 한 번 실행으로 v1, v2.1, v2.2가 모두 나온다. 결과는 \ft{results/test_v2_2/}에 생긴다.
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{@{}p{45mm}L@{}}\toprule
+파일 & 무엇을 보나\\\midrule
+\ft{summary.md} & 전체 요약. 맨 아래가 v2.2 판정\\
+\ft{verdict.csv} & v1 가설 H1--H4 지지 여부\\
+\ft{verdict_v2.csv} & v2.1 가설 H5--H9, 위약 점검\\
+\ft{verdict_v2_2.csv} & H10(제안 유지), H11, H12, V3 도전자, H13(파레토)\\
+\ft{V5_candidates_v2_2.csv} & test에서 18개 후보의 Sharpe와 순위\\
+\ft{V6_dominance_v2_2.csv} & 같은 승인비율 지배 관계\\\bottomrule
+\end{tabularx}
+\end{table}
+\begin{warnbox}[test는 한 번만]
+결과를 보고 코드나 규칙을 고치면 test는 더 이상 증거가 아니다. 고쳐야 할 것이 생기면 \ft{docs/test_protocol_v2_2.md}의 ``이탈 기록''에 날짜, 내용, 이유를 적고, 고치기 전 결과도 함께 보고한다.
+\end{warnbox}
+
+\section{막힐 때}
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{@{}p{55mm}L@{}}\toprule
+오류 메시지 & 뜻과 해결\\\midrule
+\ft{command not found: python} & conda 환경이 꺼져 있다. \ft{conda activate cmapss}\\
+\ft{ModuleNotFoundError: lc} & \ft{import _path}가 빠졌거나 \ft{scripts/} 밖에서 파일을 옮겼다\\
+\ft{KeyError: 'xxx'} & 그런 열 이름이 없다. \ft{print(df.columns)}로 확인\\
+\ft{ValueError: substring not found} & \ft{exec}로 자르는 기준 문자열이 앞 파일에서 바뀌었다\\
+\ft{IndentationError} & 들여쓰기 칸 수가 섞였다(탭과 공백). 공백 4칸으로 통일\\
+결과 숫자가 문서와 조금 다름 & seed, 승인 컷 단위(발행월인지 연도인지), 허들을 확인\\\bottomrule
+\end{tabularx}
+\end{table}

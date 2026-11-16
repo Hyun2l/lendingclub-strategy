@@ -1,0 +1,92 @@
+\chapter{채점: 현금흐름, IRR, 고르기}
+
+\section{현금흐름 복원: \texttt{schedule}, \texttt{cashflows}}
+\textbf{하려는 것.} 데이터에는 월별 납부 기록이 없고 ``받은 총액''(\ft{total_pymnt}), ``월 상환액''(\ft{installment}), ``마지막 납부월''(\ft{tau})만 있다. 이것으로 ``몇 달은 정상 납부, 마지막 달에 나머지 일시금''이라고 근사한다.
+\begin{lstlisting}
+def schedule(d):
+    inst = d['installment'].to_numpy(float)
+    tot = d['total_pymnt'].to_numpy(float)
+    n = d['tau'].to_numpy(int)
+    kf = np.minimum(n, np.floor(tot / np.maximum(inst, 1e-9))).astype(int)
+    rem = np.maximum(tot - kf * inst, 0.0)
+    return kf, rem, n
+\end{lstlisting}
+\begin{itemize}[leftmargin=*]
+\item \textbf{5번 줄} \ft{kf}(정상 납부 개월): 받은 총액 \ensuremath{\div} 월 상환액을 내림한 값. 단 마지막 납부월 \ft{n}을 넘을 수 없다. \ft{np.maximum(inst, 1e-9)}는 0으로 나누기를 막는다.
+\item \textbf{6번 줄} \ft{rem}(일시금): 받은 총액에서 정상 납부분을 뺀 나머지. 조기상환이면 남은 원금이고, 부도면 회수금이다.
+\end{itemize}
+예: 월 33.21달러짜리 대출에서 총 500달러를 받고 마지막 납부가 20개월째라면 다음과 같다.
+\[ kf=\min(20,\ \lfloor 500/33.21\rfloor)=15,\qquad rem=500-15\times33.21=1.85 \]
+즉 15개월은 33.21달러씩, 20개월째에 1.85달러를 받는다.
+
+\ft{cashflows()}는 이것을 \textbf{묶음 전체의 월별 현금흐름 배열}(0--99개월)로 만든다. 0개월째는 대출액 합계의 음수(투자)이고, 1--\ft{kf}개월은 월 상환액, \ft{n}개월째에 일시금이 들어온다. 수수료 1\%는 받은 돈마다 \ft{(1 - fee)}를 곱한다. 코드의 \ft{np.cumsum}, \ft{np.add.at}은 ``대출마다 반복문을 돌지 않고 한 번에 더하기'' 위한 기술이다. 뜻은 위 문장과 같다.
+
+\section{IRR: \texttt{irr}}
+\begin{lstlisting}
+def irr(cf):
+    cf = np.where(np.abs(cf) < 1e-6, 0.0, cf)
+    f = lambda m: (cf / (1 + m) ** np.arange(len(cf))).sum()
+    try:
+        m = brentq(f, -0.2, 0.2)
+    except ValueError:
+        m = brentq(f, -0.95, 1.0)
+    return (1 + m) ** 12 - 1
+\end{lstlisting}
+\begin{itemize}[leftmargin=*]
+\item \textbf{3번 줄} \ft{f(m)}: 월 할인율 $m$으로 모든 현금흐름을 현재가치로 바꿔 더한 값(NPV). $t$개월째 돈은 $(1+m)^t$로 나눈다.
+\item \textbf{5번 줄} \ft{brentq(f, a, b)}: $a$와 $b$ 사이에서 $f(m)=0$이 되는 $m$을 찾는다(엑셀 목표값 찾기). NPV를 0으로 만드는 할인율이 IRR이다.
+\item \textbf{6--7번 줄}: 손실이 아주 크면 $-20\%$--$20\%$ 범위에 답이 없어서, 범위를 넓혀 다시 찾는다.
+\item \textbf{8번 줄}: 월 수익률을 연 수익률로 바꾼다(복리).
+\end{itemize}
+\begin{workout}[따라 해 보기: \ft{snippets.py irr}]
+1000달러, 연 12\%, 36개월.
+\begin{lstlisting}[style=out]
+monthly payment 33.21
+fully paid: IRR 0.1268
+1% fee: IRR 0.1191
+default after 10: IRR -0.6814
+pool of two: IRR -0.1405
+\end{lstlisting}
+\Step{1} 다 갚으면 12.68\%다. 12\%가 아닌 이유는 월 1\%를 12번 복리로 쌓으면 $1.01^{12}-1=12.68\%$이기 때문이다.
+\Step{2} 수수료 1\%가 연 수익률을 약 0.8\%p 깎는다.
+\Step{3} 한 건짜리 부도는 $-68\%$처럼 극단값이 된다. 그래서 대출 하나하나의 IRR로 Sharpe를 내지 않는다(보고서 6장).
+\Step{4} 두 대출을 \textbf{현금흐름을 합쳐} 한 묶음으로 보면 $-14\%$다. 두 IRR의 평균($(12.68-68.14)/2=-27.7\%$)과 다르다.
+\Ans{묶음 IRR = 현금흐름을 먼저 합치고 IRR 한 번. 이 프로젝트의 채점은 모두 ``발행월 묶음 IRR''이다(\ft{pooled_irr}).}
+\end{workout}
+
+\section{고르기: 발행월마다 상위 $q$}
+\begin{lstlisting}
+def cut(score, q, keys):
+    a = np.zeros(len(ev), bool)
+    for _, ix in ev.groupby(keys, observed=True).indices.items():
+        s = score[ix]
+        a[ix] = s >= np.quantile(s, 1 - q)
+    return a
+
+jit = np.random.default_rng(11).random(len(ev)) * 1e-6
+er = ev['s_er'].to_numpy() + jit            # V1: expected return
+lowpd = -ev['p'].to_numpy() + jit           # V2: low default probability
+a = cut(er, 0.3, 'ym')                      # approve top 30% within each month
+a3 = cut(-acc + jit, 0.3, ['ym', 'grade'])  # V3: within month x grade
+\end{lstlisting}
+\begin{itemize}[leftmargin=*]
+\item \textbf{2번 줄}: 승인 여부 배열을 전부 ``거절''로 시작한다.
+\item \textbf{3번 줄}: 발행월(\ft{keys='ym'})마다 그 달 대출의 행 번호 \ft{ix}를 돈다. \ft{_}는 ``이름(그 달 날짜)은 안 쓴다''는 표시다.
+\item \textbf{4--5번 줄}: 그 달 점수 중 상위 $q$를 승인으로 바꾼다. \textbf{발행월마다} 자르므로 매달 승인 금액 비중이 거의 일정하다. 연도 단위로 자르면 이 비중이 들쭉날쭉해 Sharpe가 왜곡된다(37단계의 교훈).
+\item \textbf{8번 줄} 동점 깨기: 점수에 0--0.000001 사이의 아주 작은 무작위 값을 더한다. 순위는 거의 그대로이고, 동점만 무작위로 갈린다.
+\item \textbf{10번 줄}: ``부도확률이 낮을수록 좋다''를 ``점수가 높을수록 좋다''로 맞추려고 마이너스를 붙인다.
+\item \textbf{12번 줄}: \ft{keys}에 두 열을 주면 ``발행월 \ensuremath{\times} 등급''마다 자른다. 같은 등급 안에서 고르는 규칙이다.
+\end{itemize}
+\begin{workout}[따라 해 보기: \ft{snippets.py cut}]
+\begin{lstlisting}[style=out]
+top 50%: [1 1 1 0 0 1 1 0]
+ties as is: [1 1 1 1 1 1 1 1] -> approves all, not 50%
+ties + tiny noise: [0 1 1 0 1 1 0 0]
+\end{lstlisting}
+\Step{1} 첫 줄: 1월 점수 0.9, 0.5, 0.5, 0.1에서 50\% 분위수는 0.5다. 0.5 이상이 셋이라 75\%가 승인됐다. 동점이 있으면 정확히 $q$가 안 된다.
+\Step{2} 둘째 줄: 전부 동점이면 전부 승인된다. 34단계에서 실제로 이 버그가 나서, 계좌 개설 수(정수) 규칙의 실제 승인비율이 30\%가 아니라 39.5\%였다.
+\Ans{셋째 줄처럼 작은 무작위 값을 더하면 매달 정확히 절반씩 승인된다.}
+\end{workout}
+\Trap{점수가 정수이거나 같은 값이 많으면 꼭 동점을 깬다. 그리고 고른 뒤에는 \ft{a.mean()}으로 실제 승인비율을 확인한다.}
+
+\paragraph{무작위 기준선.} \ft{cut(np.random.default_rng(500 + k).random(len(ev)), q, 'ym')}. 점수 대신 무작위 수로 같은 비율을 고른다. seed 500--509로 10번(학습 쪽은 5번) 해서 평균 낸다. 이것이 ``아무거나 고를 때''다.
