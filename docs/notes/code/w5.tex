@@ -65,7 +65,7 @@ pick = ok.sort_values(['q', 'Sharpe'], ascending=[False, False]).iloc[0]
 \begin{itemize}[leftmargin=*]
 \item \ft{C}는 후보 18개(전략 2 \ensuremath{\times} 승인비율 9)의 Sharpe와 SE 표다.
 \item \textbf{1번 줄} \ft{idxmax()}: Sharpe가 가장 큰 행의 이름표. \ft{loc}으로 그 행을 꺼낸다.
-\item \textbf{2번 줄}: (최고 Sharpe $-$ 그 SE) 이상인 후보만 남긴다. 최고와 통계적으로 구분되지 않는 후보들이다.
+\item \textbf{2번 줄}: (최고 Sharpe $-$ 그 SE) 이상인 후보만 남긴다. 1위 하나의 SE로 그은 허용 범위이고, 두 후보의 차이를 검정한 것은 아니다.
 \item \textbf{3번 줄}: 승인비율 큰 순, 같으면 Sharpe 큰 순으로 정렬해 첫 줄(\ft{iloc[0]})을 고른다.
 \end{itemize}
 \begin{workout}[따라 해 보기: \ft{snippets.py onese}]
@@ -77,7 +77,9 @@ pick: A 0.5
 \Ans{최고는 A 10\%지만 기준선 3.0 이상인 후보 중 승인비율이 가장 큰 50\%에서, Sharpe가 더 높은 A를 고른다. 실제 결과(train)도 같은 구조였다. 최고는 부도확률 순 10\%(3.82, SE 0.84), 기준선은 2.98, 최종 제안은 부도확률 순 80\%(3.06)다.}
 \end{workout}
 \begin{whybox}[왜 최고값을 그냥 고르지 않나]
-18개를 비교하면 운 좋게 높게 나온 후보가 1위가 되기 쉽다(다중 비교). SE가 0.7--0.8인데 1위와 2위의 차이가 0.2라면 그 순위는 의미가 없다. 구분되지 않는다면 많이 승인하는 쪽이 금액과 NPV가 크고, 모델이 극단 꼬리를 맞혀야 하는 부담도 적다. 머신러닝에서 규제 강도를 고를 때 쓰는 ``one-standard-error rule''과 같은 생각이다.
+18개를 비교하면 운 좋게 높게 나온 후보가 1위가 되기 쉽다(다중 비교). 그래서 1위에서 조금 모자란 범위까지는 \textbf{규모가 큰 쪽}을 고르기로 미리 정했다. 머신러닝에서 규제 강도를 고를 때 쓰는 ``one-standard-error rule''과 같은 생각이다.
+
+\textbf{주의:} 이 범위는 ``1위와 통계적으로 같다''는 뜻이 아니다. 차이를 보려면 같은 가상 표본에서 두 후보의 차이를 구해야 한다(위 부트스트랩의 짝지은 비교). 실제로 짝지어 보면 부도확률 순 10\% $-$ 80\%는 0.76(90\% 0.45--1.60)으로 구분된다. 그러니 1-SE 규칙은 \textbf{Sharpe를 조금 내주고 규모를 얻는 미리 정한 선택 규칙}으로 읽는다.
 \end{whybox}
 
 \section{파레토: 41번의 \texttt{dominated}}
