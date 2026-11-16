@@ -1,16 +1,17 @@
-"""test 평가 v2: docs/test_protocol_v2.md 의 고정 규칙 그대로 실행한다.
+"""test 평가 v2.1: docs/test_protocol_v2.md 와 docs/test_protocol_v2_1.md(개정, test 전 고정)의 규칙 그대로 실행한다.
+v2.1 변경: 승인 대상을 발행월 단위로 자른다(V3·V4는 발행월×등급). 포트폴리오 지표를 허들 4단계(국채, +1%p, +2%p, BAA)로 낸다. H7 수정, H9 추가.
 
 사용:
   python scripts/35_test_evaluate_v2.py <test 파일>   # 실제 test
   python scripts/35_test_evaluate_v2.py --dry-run      # train의 30%를 가짜 test로 떼어 예행연습
 v1(15_test_evaluate.py)의 점검·예측·표 T2~T6·H1~H4를 그대로 먼저 계산하고, v2의 규칙·지표·H5~H8을 덧붙인다.
-결과: results/test_v2/ (예행연습은 results/test_v2_dryrun/)
+결과: results/test_v2_1/ (예행연습은 results/test_v2_1_dryrun/)
 """
 import _path  # noqa: F401
 from pathlib import Path
 
 SRC = (Path(__file__).parent / '15_test_evaluate.py').read_text()
-SRC = SRC.replace("RESULTS / ('test_dryrun' if DRY else 'test')", "RESULTS / ('test_v2_dryrun' if DRY else 'test_v2')")
+SRC = SRC.replace("RESULTS / ('test_dryrun' if DRY else 'test')", "RESULTS / ('test_v2_1_dryrun' if DRY else 'test_v2_1')")
 SRC = SRC.replace("pd.set_option('display.width', 250)", "V1_DONE = True\npd.set_option('display.width', 250)")
 exec(compile(SRC[:SRC.index("(OUT / 'summary.md').write_text('\\n'.join(md)")], '15_test_evaluate.py', 'exec'))
 assert V1_DONE
@@ -32,16 +33,16 @@ def block_ci(x, alpha=0.10):
     return float(np.quantile(bs, alpha / 2)), float(np.quantile(bs, 1 - alpha / 2))
 
 
-def by_year_top(e, score, q):
+def by_month_top(e, score, q):
     a = np.zeros(len(e), bool)
-    for _, ix in e.groupby('issue_year').indices.items():
+    for _, ix in e.groupby('ym').indices.items():
         a[ix] = score[ix] >= np.quantile(score[ix], 1 - q)
     return a
 
 
 def within_grade_top(e, score, q):
     a = np.zeros(len(e), bool)
-    for _, ix in e.groupby(['issue_year', 'grade'], observed=True).indices.items():
+    for _, ix in e.groupby(['ym', 'grade'], observed=True).indices.items():
         s = score[ix]
         ok = ~np.isnan(s)
         if ok.sum():
@@ -53,15 +54,15 @@ def v2_rules(e, q):
     jit = jit_rng.random(len(e)) * 1e-6
     er, pdv = e['er'].to_numpy(), e['pdx'].to_numpy()
     acc = e['acc_open_past_24mths'].to_numpy(float) if 'acc_open_past_24mths' in e else np.full(len(e), np.nan)
-    return {'V1 기대수익 순': by_year_top(e, er + jit, q), 'V2 부도확률 낮은 순': by_year_top(e, -pdv + jit, q),
+    return {'V1 기대수익 순': by_month_top(e, er + jit, q), 'V2 부도확률 낮은 순': by_month_top(e, -pdv + jit, q),
             'V3 등급 안 계좌 개설 적은 순': within_grade_top(e, -acc + jit, q),
             'V4 등급 안 부도확률 낮은 순': within_grade_top(e, -pdv + jit, q)}
 
 
-def monthly(e, a):
+def monthly(e, a, hurdle=None):
     """발행월별 (승인 묶음 IRR - 국채)와 포트폴리오 초과수익 = 승인 금액 비중 × 그 값."""
     P = e['funded_amnt'].to_numpy(float)
-    tb = e['tb'].to_numpy(float)
+    tb = e['tb'].to_numpy(float) if hurdle is None else np.asarray(hurdle, float)
     pool, port = [], []
     for _, ix in sorted(e.groupby('ym').indices.items()):
         sel = ix[a[ix]]
@@ -79,7 +80,14 @@ def monthly(e, a):
 def metrics(e, a, R_loan, x_loan, npv):
     pool, port = monthly(e, a)
     xa = x_loan[a]
-    return {'실제 승인비율': a.mean(), '승인 묶음 초과수익': np.nanmean(pool), '포트폴리오 초과수익': port.mean(),
+    tb0 = e['tb'].to_numpy(float)
+    hz = {'국채+1%p': tb0 + 0.01, '국채+2%p': tb0 + 0.02, 'BAA': e['baa'].to_numpy(float)}
+    extra = {}
+    for hn, h in hz.items():
+        pt = monthly(e, a, h)[1]
+        extra[f'포트폴리오 Sharpe({hn})'] = sharpe(pt)
+        extra[f'포트폴리오 초과수익({hn})'] = pt.mean()
+    return {**extra, '실제 승인비율': a.mean(), '승인 묶음 초과수익': np.nanmean(pool), '포트폴리오 초과수익': port.mean(),
             '포트폴리오 Sharpe': sharpe(port), '건별 Sharpe(승인만)': sharpe(xa), '건별 Sharpe(거절=0)': sharpe(np.where(a, x_loan, 0.0)),
             '하위5% 평균': np.sort(xa)[: max(1, int(len(xa) * 0.05))].mean(), '총 NPV(백만$)': npv[a].sum() / 1e6}
 
@@ -99,7 +107,7 @@ def v2_table(e, label):
         rs = v2_rules(e, q)
         for nm, a in rs.items():
             rows.append({'표본': label, '목표 승인비율': q, '규칙': nm, **metrics(e, a, R, x, npv)})
-        rnd = [metrics(e, by_year_top(e, np.random.default_rng(500 + k).random(len(e)), q), R, x, npv) for k in range(10)]
+        rnd = [metrics(e, by_month_top(e, np.random.default_rng(500 + k).random(len(e)), q), R, x, npv) for k in range(10)]
         rows.append({'표본': label, '목표 승인비율': q, '규칙': 'V0 무작위(10회 평균)', **pd.DataFrame(rnd).mean().to_dict()})
     return pd.DataFrame(rows)
 
@@ -191,16 +199,19 @@ ls_main = V2t[V2t['표본'] == '주 표본 2013~16 36개월'].set_index('신호'
 h5 = bool(ls_main.loc['기대수익 점수', '90% 하한'] > 0)
 h6 = all(m1.loc[(q, 'V2 부도확률 낮은 순'), '포트폴리오 Sharpe'] > m1.loc[(q, 'V1 기대수익 순'), '포트폴리오 Sharpe']
          and m1.loc[(q, 'V1 기대수익 순'), '포트폴리오 초과수익'] > m1.loc[(q, 'V2 부도확률 낮은 순'), '포트폴리오 초과수익'] for q in QV)
-h7 = all(m1.loc[(q, 'V3 등급 안 계좌 개설 적은 순'), '포트폴리오 Sharpe'] > m1.loc[(q, 'V2 부도확률 낮은 순'), '포트폴리오 Sharpe']
-         and m1.loc[(q, 'V3 등급 안 계좌 개설 적은 순'), '포트폴리오 초과수익'] > m1.loc[(q, 'V2 부도확률 낮은 순'), '포트폴리오 초과수익'] for q in QV)
+V3, V2, V1 = 'V3 등급 안 계좌 개설 적은 순', 'V2 부도확률 낮은 순', 'V1 기대수익 순'
+h7 = all(m1.loc[(q, V3), '포트폴리오 Sharpe'] > max(m1.loc[(q, V2), '포트폴리오 Sharpe'], m1.loc[(q, V1), '포트폴리오 Sharpe'])
+         and m1.loc[(q, V3), '포트폴리오 초과수익'] > m1.loc[(q, V2), '포트폴리오 초과수익'] for q in QV)
+h9 = bool(m1.loc[(0.3, V1), '포트폴리오 Sharpe(BAA)'] > m1.loc[(0.3, V2), '포트폴리오 Sharpe(BAA)']
+          and m1.loc[(0.3, V1), '포트폴리오 초과수익(BAA)'] > m1.loc[(0.3, V2), '포트폴리오 초과수익(BAA)'])
 h8 = all(m1.loc[(0.3, 'V2 부도확률 낮은 순'), c] > m1.loc[(0.3, 'V1 기대수익 순'), c]
          for c in ['포트폴리오 Sharpe', '건별 Sharpe(승인만)', '건별 Sharpe(거절=0)'])
 placebo_ok = bool(ls_main.loc['무작위(위약)', '90% 하한'] <= 0 <= ls_main.loc['무작위(위약)', '90% 상한'])
-verdict2 = pd.DataFrame([('H5 등급 안 신호', h5), ('H6 두 축(수익 V1, 안정성 V2)', h6), ('H7 단순 규칙이 V2를 두 축 모두 이김', h7),
+verdict2 = pd.DataFrame([('H5 등급 안 신호', h5), ('H6 두 축(수익 V1, 안정성 V2)', h6), ('H7 단순 규칙: Sharpe 1위이고 수익이 V2보다 높음(국채)', h7), ('H9 BAA 허들이면 V1이 수익·Sharpe 모두 V2보다 높음', h9),
                          ('H8 세 Sharpe 정의 모두 V2 > V1', h8), ('점검: 위약 구간이 0 포함', placebo_ok)], columns=['가설', '지지'])
 verdict2.to_csv(OUT / 'verdict_v2.csv', index=False)
 
-md += ['', '# v2 추가', '프로토콜: docs/test_protocol_v2.md', '', '## 만기 도달 비율(발행연도 × 만기)', md_table(Y0.reset_index()), '',
+md += ['', '# v2 추가', '프로토콜: docs/test_protocol_v2.md + v2_1.md', '', '## 만기 도달 비율(발행연도 × 만기)', md_table(Y0.reset_index()), '',
        '## v2 가설 판정', md_table(verdict2), '', '## 규칙별 수익·안정성 지표', md_table(V1t), '',
        '## 등급 중립 롱숏', md_table(V2t), '', '## 연도별 롱숏(주 표본)', md_table(V4t) if len(V4t) else '(없음)', '',
        '## 등급별 Sharpe', md_table(V3t)]
