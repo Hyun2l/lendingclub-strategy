@@ -48,6 +48,30 @@ hz = {'국채+1%p': tb0 + 0.01, '국채+2%p': tb0 + 0.02, 'BAA': e['baa'].to_num
 hz_rep = {hn: (sharpe(monthly(e, a_pick, h)[1]), monthly(e, a_pick, h)[1].mean()) for hn, h in hz.items()}
 v3 = sharpe(monthly(e, v2_rules(e, qp)['V3 등급 안 계좌 개설 적은 순'])[1])
 
+# v2.2 보고 추가(41단계, test 전): 같은 승인비율에서 평균 초과수익·표준편차 지배 관계(H13, 판정 없음)
+prow = []
+for q in QS22:
+    rs = v2_rules(e, q)
+    cand = {'V1 기대수익 순': by_month_top(e, scores['V1 기대수익 순'], q), 'V2 부도확률 낮은 순': by_month_top(e, scores['V2 부도확률 낮은 순'], q),
+            'V3 단순 규칙': rs['V3 등급 안 계좌 개설 적은 순']}
+    for k_, a_ in cand.items():
+        p_ = monthly(e, a_)[1]
+        prow.append({'전략': k_, '승인비율': q, '평균 초과': p_.mean(), '표준편차': p_.std(ddof=1)})
+    rp_ = [monthly(e, by_month_top(e, np.random.default_rng(500 + k).random(len(e)), q))[1] for k in range(5)]
+    prow.append({'전략': '무작위', '승인비율': q, '평균 초과': np.mean([p.mean() for p in rp_]), '표준편차': np.mean([p.std(ddof=1) for p in rp_])})
+PT = pd.DataFrame(prow)
+dom_rows = []
+for q, g in PT.groupby('승인비율'):
+    g = g.set_index('전략')
+    for a_ in g.index:
+        for b_ in g.index:
+            if a_ != b_ and g.loc[a_, '평균 초과'] >= g.loc[b_, '평균 초과'] and g.loc[a_, '표준편차'] <= g.loc[b_, '표준편차']:
+                dom_rows.append({'승인비율': q, '지배하는 쪽': a_, '지배당하는 쪽': b_})
+DOM = pd.DataFrame(dom_rows, columns=['승인비율', '지배하는 쪽', '지배당하는 쪽'])
+PT.round(5).to_csv(OUT / 'V6_pareto_v2_2.csv', index=False)
+DOM.to_csv(OUT / 'V6_dominance_v2_2.csv', index=False)
+pick_dom = bool(((DOM['지배당하는 쪽'] == nm) & np.isclose(DOM['승인비율'], qp)).any())
+
 h10 = lo > 0
 h11 = bool(sharpe(ch) > all_s)
 V22 = pd.DataFrame([
@@ -55,12 +79,13 @@ V22 = pd.DataFrame([
     ('H11 전부 승인보다 Sharpe 높음(보고)', h11, f'{sharpe(ch):.2f} vs {all_s:.2f}'),
     ('H12 18개 중 순위(보고)', None, f"{int(row['순위'])}위, 1위와 차이 {C['Sharpe'].max() - row['Sharpe']:.2f}"),
     ('V3 같은 비율 Sharpe(도전자, 보고)', None, f'{v3:.2f}'),
+    ('H13 같은 비율에서 선택안이 지배당하지 않음(보고)', not pick_dom, '지배당함' if pick_dom else '경계 위'),
 ], columns=['가설', '지지', '값'])
 C.round(4).to_csv(OUT / 'V5_candidates_v2_2.csv', index=False)
 V22.to_csv(OUT / 'verdict_v2_2.csv', index=False)
 md2 = ['', '# v2.2 최종 제안 판정', f'최종 제안: {nm} 승인 {int(round(qp * 100))}% (39단계, test 전 고정)', '', md_table(V22), '',
        '## 허들별(보고)', md_table(pd.DataFrame([(k, v[0], v[1]) for k, v in hz_rep.items()], columns=['허들', 'Sharpe', '평균 초과'])), '',
-       '## test의 18개 후보', md_table(C)]
+       '## test의 18개 후보', md_table(C), '', '## 같은 승인비율 지배 관계(H13, 보고)', md_table(DOM) if len(DOM) else '(없음)']
 with open(OUT / 'summary.md', 'a') as fh:
     fh.write('\n'.join(md2) + '\n')
 print('\n'.join(md2[:6]))
