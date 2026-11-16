@@ -49,6 +49,7 @@
 | 33 | Sortino, NPV, 등급 중립 롱숏, 등급별 Sharpe | 완료 (eda-fe-models 브랜치) |
 | 34 | 근본 가정 재점검 6가지, 단순 규칙 동점 진단 | 완료 (eda-fe-models 브랜치) |
 | 35 | test 프로토콜 v2 고정과 예행연습 | 완료 (eda-fe-models 브랜치, 태그 test-protocol-v2) |
+| 36~39 | 팀 보고서, 외부 검증 대응, 발행월 컷 재검증, test 프로토콜 v2.1 | 완료 (태그 test-protocol-v2.1) |
 
 ## 결정 기록
 각 단계에서 무엇을 왜 골랐는지 `docs/decisions.md`에 남긴다.
