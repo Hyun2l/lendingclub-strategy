@@ -1,0 +1,102 @@
+% Neuron document style: Charter + Noto Serif CJK KR, light outlined boxes, grayscale.
+% Usage: \documentclass[11pt]{report} \input{neuron-style}  (compile with xelatex)
+\usepackage[a4paper,margin=24mm,headheight=14pt]{geometry}
+\usepackage{fontspec}
+\setmainfont{Charter}[Path=fonts/,Extension=.otf,UprightFont=*-Regular,ItalicFont=*-Italic,
+  BoldFont=*-Bold,BoldItalicFont=*-BoldItalic,Ligatures=TeX]
+\setsansfont{lmsans10-regular.otf}[BoldFont=lmsans10-bold.otf,ItalicFont=lmsans10-oblique.otf]
+\setmonofont{lmmono10-regular.otf}[ItalicFont=lmmono10-italic.otf]
+\newfontfamily\krfont{Nanum Myeongjo}[Scale=0.9]
+\XeTeXinterchartokenstate=1
+\newXeTeXintercharclass\krclass
+\count255="AC00 \loop\ifnum\count255<"D7A4 \XeTeXcharclass\count255=\krclass \advance\count255 by 1 \repeat
+\count255="3000 \loop\ifnum\count255<"3040 \XeTeXcharclass\count255=\krclass \advance\count255 by 1 \repeat
+\count255="3130 \loop\ifnum\count255<"3190 \XeTeXcharclass\count255=\krclass \advance\count255 by 1 \repeat
+\count255="1100 \loop\ifnum\count255<"1200 \XeTeXcharclass\count255=\krclass \advance\count255 by 1 \repeat
+\XeTeXinterchartoks 0 \krclass = {\begingroup\krfont}
+\XeTeXinterchartoks 4095 \krclass = {\begingroup\krfont}
+\XeTeXinterchartoks \krclass 0 = {\endgroup}
+\XeTeXinterchartoks \krclass 4095 = {\endgroup}
+\XeTeXlinebreaklocale "ko"
+\XeTeXlinebreakskip=0pt plus 1pt
+\usepackage{amsmath,amssymb,amsthm,mathtools,bm}
+\usepackage[italic,defaultmathsizes,noasterisk]{mathastext}
+\emergencystretch=2.5em
+
+\usepackage{graphicx,booktabs,tabularx,longtable,array,multirow,enumitem,xcolor}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric,arrows.meta,positioning,fit,calc,backgrounds,decorations.pathreplacing}
+\usepackage[most]{tcolorbox}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+
+\setlist{itemsep=1pt,topsep=3pt,parsep=0pt}
+\setlength{\parskip}{3pt}
+\renewcommand{\arraystretch}{1.12}
+
+\lstdefinestyle{sql}{language=SQL,basicstyle=\ttfamily\small,keywordstyle=\bfseries,
+  commentstyle=\itshape\color{black!60},columns=fullflexible,keepspaces=true,
+  frame=l,framerule=0.6pt,rulecolor=\color{black!40},xleftmargin=8pt,framexleftmargin=4pt,
+  aboveskip=5pt,belowskip=5pt,showstringspaces=false,breaklines=true,
+  morekeywords={OVER,PARTITION,RANK,DENSE_RANK,ROW_NUMBER,NTILE,LAG,LEAD,ROWS,RANGE,PRECEDING,FOLLOWING,UNBOUNDED,CURRENT,ROW,NVL,NVL2,REFERENCES,CASCADE,MINUS,INTERSECT,EXISTS,MATERIALIZED,VIEW,REPLACE,RATIO_TO_REPORT,FIRST_VALUE,LAST_VALUE,INTERVAL,NULLS,LAST,FIRST,CHECK,CONSTRAINT,UNIQUE,DEFERRABLE,COMMIT,BEGIN,ROLLBACK,TRANSACTION,INDEX,DEFAULT,ANY,ALL,SOME,ROUND}}
+\lstset{style=sql}
+
+\tcbset{
+ nb/.style={enhanced,breakable,colback=white,coltitle=black,fonttitle=\bfseries,
+   left=3mm,right=3mm,top=1.6mm,bottom=1.6mm,before skip=9pt,after skip=9pt,parbox=false},
+ framed/.style={nb,boxrule=0.5pt,colframe=black!70,arc=1.2mm,colbacktitle=white,
+   titlerule=0.4pt,titlerule style={black!25},toptitle=1mm,bottomtitle=0.6mm},
+ light/.style={framed,colframe=black!35},
+ ruled/.style={nb,boxrule=0pt,leftrule=1.1pt,colframe=black!45,sharp corners,left=3.5mm,
+   top=0.5mm,bottom=0.5mm,detach title,before upper={\tcbtitle\par\smallskip}},
+}
+\DeclareTColorBox{keybox}{o}{framed,leftrule=2.2pt,title={\IfValueTF{#1}{#1}{Key idea}}}
+\DeclareTColorBox{formulabox}{o}{framed,IfValueTF={#1}{title={#1}}{}}
+\DeclareTColorBox{workout}{o}{light,title={Example\IfValueT{#1}{\ \textmd{---}\ #1}}}
+\DeclareTColorBox{qa}{m}{light,title={#1}}
+\DeclareTColorBox{warnbox}{o}{ruled,leftrule=2.2pt,colframe=black,title={Caution\IfValueT{#1}{\ \textmd{---}\ #1}}}
+\DeclareTColorBox{whybox}{o}{ruled,title={\IfValueTF{#1}{#1}{Why it works}}}
+\DeclareTColorBox{prof}{o}{ruled,title={Lecture note\IfValueT{#1}{\ \textmd{---}\ #1}}}
+\DeclareTColorBox{career}{o}{ruled,title={Career note\IfValueT{#1}{\ \textmd{---}\ #1}}}
+\DeclareTColorBox{insight}{o}{ruled,title={In practice\IfValueT{#1}{\ \textmd{---}\ #1}}}
+
+\newcommand{\Step}[1]{\par\smallskip\noindent\textbf{Step #1.}\ }
+\newcommand{\Concept}[1]{\hfill{\small[개념: #1]}}
+\newcommand{\Use}[1]{\noindent\textit{사용 개념:} #1\par}
+\newcommand{\Ans}[1]{\par\smallskip\noindent\fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\textbf{답}\ \ #1}}\par}
+\newcommand{\Trap}[1]{\par\smallskip\noindent\textit{흔한 실수:} #1}
+\newcommand{\Verify}[1]{\par\smallskip\noindent\textit{검산:} #1}
+\newcommand{\Intuit}[1]{\par\smallskip\textbf{직관: #1}}
+\newcommand{\pk}[1]{\underline{#1}}
+\newcommand{\NULL}{\textsc{null}}
+\newcommand{\sqlk}[1]{\texttt{#1}}
+\newcommand{\Nul}{{\color{black!50}\textit{null}}}
+
+% relational algebra symbols
+\newcommand{\sel}{\sigma}
+\newcommand{\proj}{\pi}
+\newcommand{\join}{\bowtie}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\small\itshape\leftmark}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+
+\usepackage{titlesec}
+\titleformat{\chapter}[display]{\bfseries\Large}{\chaptertitlename\ \thechapter}{6pt}{\LARGE}
+\titlespacing*{\chapter}{0pt}{-10pt}{14pt}
+\titleformat{\section}{\bfseries\large}{\thesection}{0.8em}{}
+\titleformat{\subsection}{\bfseries\normalsize}{\thesubsection}{0.8em}{}
+
+% ---------- cheat-sheet / problem-sheet helpers ----------
+\newcounter{qn}
+\newcommand{\Q}[2]{\par\smallskip\refstepcounter{qn}\noindent\textbf{Q\theqn.}\ {\footnotesize[#1]}\ #2\par}
+\newcommand{\A}[1]{\vspace{1pt}\noindent\begin{tcolorbox}[ruled,leftrule=1.6pt,colframe=black!45,before skip=1pt,after skip=4pt,top=0.5mm,bottom=0.5mm]\small\textbf{답} #1\end{tcolorbox}}
+\newcommand{\Lab}[3]{\item \textbf{#1}\\ \textit{해 본 것:} #2\\ \textit{\ensuremath{\Rightarrow} 개념:} #3}
+\newcommand{\eg}{\textit{예)}\ }
+\newcommand{\bi}{\textit{비유)}\ }

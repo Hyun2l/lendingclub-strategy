@@ -1,0 +1,112 @@
+\chapter{EDA, 피처, 결측}
+
+\section{EDA는 무엇을 위한 것인가}
+EDA(exploratory data analysis)는 그림을 많이 그리는 일이 아니라, \textbf{모델링 결정을 내리기 위한 질문에 답하는 일}이다. 이 프로젝트의 EDA 질문은 네 개였다.
+\begin{enumerate}[leftmargin=*]
+\item 어떤 변수가 혼자서 부도를 가르는가? \ensuremath{\to} IV(\S4.2)
+\item 어떤 변수들이 서로 같은 정보인가? \ensuremath{\to} 순위상관
+\item LC 등급이 이미 설명한 것 말고 남은 정보가 있는가? \ensuremath{\to} 등급 안 분석(\S4.3)
+\item 값이 왜 비어 있나? \ensuremath{\to} 결측 메커니즘(\S4.4)
+\end{enumerate}
+12단계 EDA는 평가 구간을 보지 않도록 2007--12년 대출만 썼다. 20단계 EDA(\ft{results/eda/})는 2007--16년 종결 대출을 썼다.
+
+\section{WOE와 IV: 한 변수의 힘}
+\textbf{질문.} 연소득이 부도와 얼마나 관련 있는지를 한 숫자로 말할 수 있을까?
+
+변수를 구간(bin)으로 나누고, 각 구간에 정상 대출과 부도 대출이 얼마나 몰렸는지 비교한다. 전체 정상 $G$건 중 구간 $k$에 $g_k$건, 전체 부도 $B$건 중 $b_k$건이 있으면
+\[
+\mathrm{WOE}_k=\ln\frac{g_k/G}{b_k/B},\qquad
+\mathrm{IV}=\sum_k\Big(\frac{g_k}{G}-\frac{b_k}{B}\Big)\mathrm{WOE}_k .
+\]
+WOE가 양수면 그 구간은 정상 쪽, 음수면 부도 쪽 증거다. IV는 모든 구간의 ``치우침 \ensuremath{\times} 증거''를 더한 것이라 항상 0 이상이다. 관행상 0.02 미만은 약함, 0.1--0.3 중간, 0.3 이상 강함이다.
+
+\begin{workout}[결측 구간의 WOE]
+\Use{WOE, IV(이 절), MNAR(\S4.4)}
+\Step{1} 예시: 정상 900건, 부도 100건. 어떤 변수가 결측인 구간과 값이 있는 구간 두 개.
+\Step{2} 경우 1: 결측 구간에 정상 270, 부도 30. 비중이 정상 $270/900=0.3$, 부도 $30/100=0.3$로 같다.
+$\mathrm{WOE}=\ln(0.3/0.3)=0$, 값 있는 구간도 0. IV $=0$. \Concept{WOE 정의}
+\Step{3} 경우 2: 결측 구간에 정상 240, 부도 60. 비중 $0.267$ vs $0.6$.
+$\mathrm{WOE}_{\text{결측}}=\ln(0.267/0.6)=-0.811$, $\mathrm{WOE}_{\text{있음}}=\ln(0.733/0.4)=+0.606$.
+\Step{4} $\mathrm{IV}=(0.267-0.6)(-0.811)+(0.733-0.4)(0.606)=0.472$. \Concept{IV 정의}
+\Ans{경우 1은 결측이 아무 정보도 없고(IV 0), 경우 2는 ``비어 있다는 사실'' 자체가 강한 부도 신호다(IV 0.47).}
+\Verify{\ft{checks.py} 8번.}
+\Trap{결측을 평균으로 채워 버린다. 경우 2라면 가장 강한 신호를 지운 것이다.}
+\end{workout}
+
+\begin{table}[H]\centering\small
+\begin{tabular}{@{}lr|lr@{}}\toprule
+변수 & IV & 변수 & IV\\\midrule
+\ft{sub_grade} & 0.487 & \ft{term} & 0.178\\
+\ft{grade} & 0.452 & FICO & 0.112\\
+\ft{int_rate} & 0.441 & \ft{annual_inc} & 0.029\\\bottomrule
+\end{tabular}
+\caption{IV 상위(20단계). 101개 중 67개는 혼자서는 IV 0.02 미만이다.}
+\end{table}
+
+등급, 세부등급, 금리가 압도적이다. 셋은 사실상 같은 정보(LC의 판단)다. 순위상관 0.9 이상인 쌍이 12개 있었다(FICO 상한과 하한 1.0, 대출액과 승인액 1.0 등).
+
+\section{등급 안에 남은 정보}
+IV만 보면 연소득은 약한 변수(0.029)다. 그런데 \textbf{같은 세부등급 안에서} 비교하면 이야기가 달라진다.
+
+\begin{keybox}[결과 C14, C18]
+등급이 설명하지 못한 정보는 소득, 상환 부담(월 상환액/월 소득), 최근 계좌 개설, 부채비율(DTI), 지역에 남아 있다. 같은 세부등급, 같은 금리에서 소득 상위이면서 DTI 하위 20\%인 대출이 IRR이 약 0.9\%p 높다(모델 없이 계산).
+\Intuit{LC는 신용점수는 가격에 잘 넣었지만, ``갚을 능력''은 덜 넣었다.}
+\end{keybox}
+
+혼자서는 약하고 등급과 함께 볼 때 힘이 나는 변수가 있다는 것, 이것이 후보 A(같은 등급 안 선별)의 출발점이다. 단, 소득 효과는 해마다 줄었다(2.66\%p에서 0.19\%p). 시장이 그 정보를 점점 가격에 넣었을 수 있다.
+
+\section{결측 메커니즘}
+\textbf{질문.} 값이 비어 있는 이유가 결과와 관련 있나?
+
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{@{}p{30mm}LL@{}}\toprule
+메커니즘 & 뜻 & LC 예\\\midrule
+MCAR & 완전히 무작위로 비어 있음 & 거의 없음(소량 결측 일부)\\
+MAR & 관측된 다른 변수(예: 발행 시기)로 설명됨 & 2015년 말 이후 생긴 새 변수 14개(\ft{il_util} 등)\\
+MNAR & 비어 있는 값 자체와 관련 있음 & \ft{emp_length}: 무직이거나 밝히기 꺼리면 비움\\
+구조적 & 정의상 값이 없음 & 공동신청 변수 15개(단독 신청이면 없음)\\
+사건 없음 & 그 사건이 없었음 & \ft{mths_since_last_delinq}: 연체한 적이 없으면 빔\\\bottomrule
+\end{tabularx}
+\caption{결측 유형(\ft{src/lc/missing.py}의 \ft{classify}).}
+\end{table}
+
+\begin{whybox}[사건 없음은 ``아주 오래전''이다]
+``마지막 연체 후 몇 개월''이 비었다는 것은 연체한 적이 없다는 뜻이다. 평균(예: 30개월)으로 채우면 ``30개월 전에 연체했다''는 거짓 정보가 된다. 그래서 선형 모델용으로는 학습 데이터의 최댓값으로 채우고 결측 표시를 붙이는 방식을 시험했다(\ft{typed_linear}).
+\end{whybox}
+
+\section{결측 처리 결정(22단계)}
+결측 처리는 모델 비교보다 \textbf{먼저} 정해야 한다. 그렇지 않으면 ``모델 A가 낫다''가 사실은 ``모델 A에 맞춘 결측 처리가 낫다''일 수 있다. 판정 기준은 실험 전에 정했다: 가장 단순한 방식보다 선별 가치 0.1\%p 초과 또는 AUC 0.002 초과로 나은 연도가 4개 중 3개 이상이면 채택.
+
+\begin{itemize}[leftmargin=*]
+\item \textbf{트리 모델}(LightGBM): 결측 그대로 / 중앙값 / 중앙값 + 결측 표시 / 유형별 처리 모두 시드 차이 안. \ensuremath{\to} \textbf{결측 그대로}. LightGBM은 분할마다 결측을 왼쪽, 오른쪽 중 나은 쪽으로 보내는 법을 스스로 배운다.
+\item \textbf{선형 모델}(로지스틱): 1차 비교에서 2016년 AUC 0.508로 무너졌다.
+\end{itemize}
+
+\begin{warnbox}[로지스틱 붕괴의 진짜 원인]
+결측 처리가 문제가 아니었다. 2016년 모델의 학습 기간(2015년까지)에는 새 변수 33개가 거의 비어 있었다. 학습에서 그 변수의 표준편차는 소수 대출로 계산되어 매우 작았고, 평가 연도에는 모든 대출에 값이 있어 표준화 값이 최대 290까지 튀었다. 선형 모델은 큰 입력에 계수를 그대로 곱하므로 예측이 폭발한다.
+\end{warnbox}
+
+\begin{keybox}[확정 방침]
+\begin{itemize}[leftmargin=*]
+\item 트리: 결측 그대로.
+\item 선형: \textbf{가용성 규칙}(학습 가용률 50\% 미만 변수 제외) \ensuremath{\to} 1--99\% 분위 자르기 \ensuremath{\to} 중앙값 대치. \ft{emp_length} 결측은 ``모름'' 범주로.
+\end{itemize}
+두 규칙을 넣자 2016년 AUC가 0.678로 정상화됐다. 이후 비교에서는 중앙값보다 확실히 나은 방식이 없었다.
+\Intuit{결측을 어떻게 채우느냐보다, 학습 때 거의 없던 변수를 쓰지 않는 것이 훨씬 중요했다.}
+\end{keybox}
+
+\section{Feature engineering}
+만든 피처 6종: 상환 부담(PTI = 월 상환액/월 소득), 대출 대비 소득(LTI), 신용 이력 개월, 근속 연수 숫자화, 우편번호 3자리 부도율(out-of-fold target encoding), FICO 평균. 대조군으로 노이즈 피처와 시드 변경을 함께 넣었다.
+
+\begin{keybox}[결과 C15, C16, C21]
+LightGBM에서는 모든 피처의 효과($-0.01$--$+0.02$\%p)가 시드만 바꿔도 생기는 차이(최대 0.09\%p)보다 작았다. 트리는 원본 변수(소득, 상환액, 대출액)에서 이미 비율 관계를 잡는다. 선형 모델에서는 피처가 조금 도움이 된다(L2 \ensuremath{\to} L2 + 피처, Lasso \ensuremath{\to} Lasso + 피처).
+\Intuit{나무는 나눗셈을 스스로 흉내 내지만, 직선 모델은 누가 나눠 줘야 한다.}
+\end{keybox}
+
+\begin{prof}[target encoding의 누수]
+우편번호별 부도율을 그 대출 자신이 포함된 데이터로 계산하면 자기 라벨이 특성에 섞인다. 학습 데이터를 5조각으로 나눠 각 조각의 값은 나머지 4조각으로 계산(out-of-fold)하고, 표본이 적은 우편번호는 전체 평균 쪽으로 당겼다(smoothing).
+\end{prof}
+
+\begin{career}
+``Feature engineering으로 성능을 얼마나 올렸나?''에 ``0이었다, 그리고 그걸 어떻게 확인했나''로 답할 수 있다. 노이즈 피처와 시드 변경을 \textbf{대조군}으로 넣어 효과 크기를 잡음과 비교한 것이 핵심이다.
+\end{career}

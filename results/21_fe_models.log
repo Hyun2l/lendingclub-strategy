@@ -1,0 +1,11 @@
+피처 엔지니어링 20 개: ['pti', 'lti', 'credit_hist_m', 'emp_years', 'revol_bal_inc', 'bal_ex_mort_inc', 'open_ratio', 'bc_actv_ratio', 'na_mths_since_last_delinq', 'na_mths_since_last_record', 'na_mths_since_recent_inq', 'na_mths_since_last_major_derog', 'na_il_util', 'na_emp_length', 'log_annual_inc', 'log_revol_bal', 'log_tot_cur_bal', 'log_total_rev_hi_lim', 'log_avg_cur_bal', 'log_bc_open_to_buy']
+2013 로지스틱 완료 WOE 변수 63개 0.1분
+2013 튜닝 선택 {'num_leaves': 63, 'min_child_samples': 50} 0.7433
+2013 시드 0 완료 0.3분
+2013 시드 1 완료 0.3분
+2013 시드 2 완료 0.4분
+2014 로지스틱 완료 WOE 변수 54개 0.5분
+2014 튜닝 선택 {'num_leaves': 63, 'min_child_samples': 500} 0.7336
+2014 시드 0 완료 0.8분
+2014 시드 1 완료 0.9분
+2014 시드 2 완료 1.0분

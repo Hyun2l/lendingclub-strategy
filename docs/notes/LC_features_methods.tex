@@ -1,0 +1,413 @@
+\documentclass[11pt]{report}
+\input{neuron-style}
+\usepackage{float}
+\newcommand{\ft}[1]{\texttt{\detokenize{#1}}}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\begin{document}
+
+\begin{center}
+{\LARGE\bfseries LendingClub 프로젝트: 피처, 기법, 개념 정리}\par\medskip
+{\small 서울대 ABS 14기 팀 프로젝트 \ensuremath{\cdot} 2026년 11월 9일 기준 \ensuremath{\cdot} 숫자는 모두 train 데이터 실험 결과}
+\end{center}
+\tableofcontents
+
+% ======================================================================
+\chapter{한눈에 보기}
+
+\section{과제와 질문}
+과제는 투자자 관점에서 LendingClub(LC) 대출 중 무엇을 승인할지 정하는 것이다. 기본 지표는 Sharpe ratio지만 변형이 허용되고, accuracy보다 과정과 논리가 중요하다.
+
+\begin{keybox}[이 문서의 결론 세 줄]
+\begin{enumerate}
+\item 2013\textasciitilde 2016년 36개월 대출은 전부 승인해도 수수료 차감 IRR 5.73\%로 국채(0.87\%)를 이겼다.
+\item 모델의 추가 수익은 좋은 등급을 고르는 데가 아니라 \textbf{같은 등급 안에서} 더 나은 대출을 고르는 데서 나온다(Brinson decomposition).
+\item Feature engineering, tuning, 결측 처리는 결과를 거의 바꾸지 못했다. 차이를 만든 것은 \textbf{무엇을 재고 어떻게 검증하느냐}였다.
+\end{enumerate}
+\Intuit{모델을 더 똑똑하게 만드는 것보다, 성적표를 정직하게 매기는 법이 더 중요했다.}
+\end{keybox}
+
+\section{데이터와 평가 설정}
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{@{}lL@{}}\toprule
+항목 & 내용\\\midrule
+데이터 & train 1,755,294건 \ensuremath{\times} 141 columns, 2007\textasciitilde 2020년 발행\\
+결과 상태 & Fully Paid 90만, Current 62만, Charged Off 22만. 종결 표본(정책 미충족 제외) 1,116,156건\\
+주 평가 표본 & 2013\textasciitilde 2016년 발행 36개월 종결 대출(종결 비율 99.99\%), 발행월 48개\\
+학습 방식 & as-of(시점) 학습: 연도 Y의 대출은 Y년 1월 1일까지 확정된 대출로만 학습\\
+수익률 & 발행월 cohort IRR, 투자자 수수료 1\% 차감\\
+비교 기준 & 발행월\ensuremath{\cdot}만기를 맞춘 미 국채(GS3, GS5), 보조로 회사채 BAA\\\bottomrule
+\end{tabularx}
+\caption{기본 평가 설정.}
+\end{table}
+
+\begin{center}
+\begin{tikzpicture}[node distance=5mm,box/.style={draw=black!70,rounded corners=1.2mm,align=center,font=\small,minimum height=10mm,text width=24mm}]
+\node[box] (a) {데이터 정리\\누수 제거};
+\node[box,right=of a] (b) {현금흐름 복원\\IRR, 국채};
+\node[box,right=of b] (c) {as-of 학습\\PD, LGD};
+\node[box,right=of c] (d) {승인 규칙\\기대수익};
+\node[box,below=8mm of c] (e) {평가\\cohort, Brinson};
+\node[box,below=8mm of b] (f) {검증\\placebo, bootstrap};
+\draw[-{Stealth},black!60] (a)--(b); \draw[-{Stealth},black!60] (b)--(c); \draw[-{Stealth},black!60] (c)--(d);
+\draw[-{Stealth},black!60] (d) |- (e); \draw[-{Stealth},black!60] (e)--(f);
+\end{tikzpicture}
+\end{center}
+
+% ======================================================================
+\chapter{피처 정리}
+
+\section{컬럼 지도}
+141개 컬럼을 의미와 시점으로 나누면 아래와 같다. 판별 질문은 하나다: ``대출을 승인하던 날 이 값을 알 수 있었나?''
+
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{@{}lrL@{}}\toprule
+그룹 & 수 & 대표 컬럼과 역할\\\midrule
+대출 조건 & 15 & \ft{int_rate}, \ft{grade}, \ft{sub_grade}, \ft{term}, \ft{loan_amnt}, \ft{purpose}. LC가 매긴 가격 정보 포함\\
+차주 기본 정보 & 8 & \ft{annual_inc}, \ft{dti}, \ft{emp_length}, \ft{home_ownership}, \ft{addr_state}\\
+신용 이력: 연체\ensuremath{\cdot}공공기록\ensuremath{\cdot}조회 & 24 & \ft{fico_range_low}, \ft{inq_last_6mths}, \ft{delinq_2yrs}, \ft{mths_since_last_delinq}\\
+신용 이력: 리볼빙\ensuremath{\cdot}bankcard & 21 & \ft{revol_util}, \ft{bc_util}, \ft{total_bc_limit}, \ft{percent_bc_gt_75}\\
+신용 이력: 계좌 수\ensuremath{\cdot}잔액\ensuremath{\cdot}한도 & 15 & \ft{acc_open_past_24mths}, \ft{total_acc}, \ft{tot_cur_bal}\\
+신용 이력: 할부 & 9 & \ft{il_util}, \ft{num_il_tl}, \ft{total_il_high_credit_limit}\\
+공동신청 & 15 & \ft{sec_app_*}, \ft{annual_inc_joint}. 공동신청일 때만 값이 있음\\
+상환 결과(사후) & 16 & \ft{total_pymnt}, \ft{recoveries}, \ft{last_pymnt_d}. \textbf{누수}\\
+hardship 제도(사후) & 15 & \ft{hardship_*}. \textbf{누수}\\
+식별\ensuremath{\cdot}메타 & 2 & \ft{id}, \ft{url}\\\bottomrule
+\end{tabularx}
+\caption{컬럼 그룹(컬럼 사전 기준). 모델 입력 검토 104개, 누수 31개, 제외 후보 2개, 확인 필요 1개, 타깃 1개, 시간 분할 기준 1개.}
+\end{table}
+
+\begin{warnbox}[누수]
+사후 컬럼을 넣으면 AUC가 0.9999까지 오른다(빼면 0.72). 점수는 완벽해 보이지만 실제 심사 때는 그 값이 없어 쓸모가 없다. 코드에서 컬럼 이름 목록과 테스트로 막아 두었다.
+\end{warnbox}
+
+\section{핵심 피처}
+2016년 1월 1일 기준 as-of LightGBM(시드 5개 평균)을 2016년 발행 대출에 적용해, 각 피처가 부도 예측에 기여한 크기(평균 $|\mathrm{SHAP}|$)를 쟀다.
+
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{@{}rlLrl@{}}\toprule
+순위 & 피처 & 뜻 & 비중 & 방향\\\midrule
+1 & \ft{int_rate} & LC가 매긴 이자율 & 15.1\% & 높을수록 위험 \ensuremath{\uparrow}\\
+2 & \ft{annual_inc} & 자기 신고 연소득 & 8.0\% & 높을수록 위험 \ensuremath{\downarrow}\\
+3 & \ft{dti} & 월 부채 상환액 \ensuremath{\div} 월소득 & 6.1\% & 높을수록 위험 \ensuremath{\uparrow}\\
+4 & \ft{addr_state} & 거주 주 & 4.1\% & 범주형\\
+5 & \ft{earliest_cr_line} & 첫 신용 계좌 개설 연도 & 3.1\% & 해석 주의(아래)\\
+6 & \ft{term} & 만기(36/60개월) & 2.8\% & 비선형\\
+7 & \ft{purpose} & 대출 목적 & 2.5\% & 범주형\\
+8 & \ft{loan_amnt} & 신청 금액 & 2.5\% & 높을수록 위험 \ensuremath{\uparrow}\\
+9 & \ft{sub_grade} & LC 세부 등급 & 2.5\% & 범주형\\
+10 & \ft{mo_sin_old_rev_tl_op} & 가장 오래된 리볼빙 계좌 경과 개월 & 2.5\% & 높을수록 위험 \ensuremath{\downarrow}\\
+11 & \ft{revol_util} & 리볼빙 한도 대비 사용률 & 2.2\% & 높을수록 위험 \ensuremath{\uparrow}\\
+12 & \ft{mths_since_recent_bc} & 최근 bankcard 개설 후 경과 개월 & 2.1\% & 높을수록 위험 \ensuremath{\downarrow}\\
+13 & \ft{total_bc_limit} & bankcard 한도 합계 & 2.1\% & 높을수록 위험 \ensuremath{\downarrow}\\
+14 & \ft{percent_bc_gt_75} & 한도 75\% 초과 사용 카드 비율 & 2.0\% & 높을수록 위험 \ensuremath{\uparrow}\\
+15 & \ft{inq_last_6mths} & 최근 6개월 신용조회 수 & 2.0\% & 높을수록 위험 \ensuremath{\uparrow}\\\bottomrule
+\end{tabularx}
+\caption{부도 예측 기여 상위 15개(전체 101개 중). 상위 10개가 49\%, 상위 20개가 69\%를 차지한다.}
+\end{table}
+
+\begin{keybox}[핵심 피처에서 읽을 것]
+\begin{itemize}
+\item LC 가격 정보(\ft{int_rate}, \ft{grade}, \ft{sub_grade}, \ft{term}, \ft{installment})가 전체 기여의 23\%다. 나머지 77\%는 다른 변수에 흩어져 있다.
+\item \ft{fico_range_low}는 1.5\%로 작다. FICO 정보는 이미 등급과 금리에 반영돼 있기 때문이다.
+\item 그룹으로 묶으면 대출 조건 31\%, 차주 기본 정보 23\%, 리볼빙\ensuremath{\cdot}bankcard 20\%, 연체\ensuremath{\cdot}조회 13\% 순이다.
+\end{itemize}
+\Intuit{LC 금리가 1등이지만, 모델은 금리만 보는 게 아니라 소득\ensuremath{\cdot}부채\ensuremath{\cdot}카드 사용 습관을 함께 본다.}
+\end{keybox}
+
+\begin{warnbox}[SHAP 방향 읽기]
+방향은 피처 값과 SHAP의 상관으로 정한 요약이다. 인과가 아니다. 예를 들어 \texttt{earliest\_\allowbreak{}cr\_\allowbreak{}line}(연도)은 ``최근일수록 위험 \ensuremath{\downarrow}''로 나와 직관과 반대인데, 다른 신용 이력 변수와 겹치는 정보를 나눠 가지면서 생긴 결과일 수 있다. 방향을 주장할 때는 단일 변수 그림(부분 의존도)으로 따로 확인해야 한다.
+\end{warnbox}
+
+\section{등급 안에 남은 정보}
+등급이 이미 설명한 부분을 빼고, \textbf{같은 세부등급 안에서} 부도를 가르는 힘을 쟀다(평가 기간을 보지 않도록 2007\textasciitilde 2012년 대출만 사용).
+
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{@{}lrrL@{}}\toprule
+피처 & 전체 AUC$-0.5$ & 등급 안 AUC$-0.5$ & 해석\\\midrule
+\ft{annual_inc} & $-0.054$ & $-0.080$ & 등급이 소득을 거의 안 씀. 등급 안에서 더 강함\\
+\ft{lti}(대출액 \ensuremath{\div} 소득) & 0.094 & 0.057 & 상환 부담\\
+\ft{acc_open_past_24mths} & 0.067 & 0.051 & 최근 신용 확장\\
+\ft{pti}(상환액 \ensuremath{\div} 소득) & 0.082 & 0.049 & 상환 부담\\
+\ft{dti} & 0.050 & 0.037 & 부채 수준\\
+우편번호 부도율 & 0.033 & 0.034 & 등급이 지역을 안 씀\\
+\ft{int_rate} & 0.155 & 0.013 & 정보 대부분이 등급과 같음\\
+\ft{fico_range_low} & $-0.105$ & $-0.006$ & 정보 대부분이 등급과 같음\\
+무작위 노이즈 & 0.002 & 0.004 & 기준선\\\bottomrule
+\end{tabularx}
+\caption{세부등급 안 AUC는 세부등급별 AUC의 대출 수 가중 평균. 0이면 정보 없음.}
+\end{table}
+
+\section{시간에 따른 변화}
+\begin{itemize}
+\item 금리 중앙값: 2013년 14.3\% \ensuremath{\to} 2016년 12.0\%. 그런데 실제 부도율은 12.2\% \ensuremath{\to} 15.9\%로 올랐다.
+\item \ft{dti} 중앙값: 16.85 \ensuremath{\to} 18.25. 차주의 부채 부담이 커졌다.
+\item \ft{revol_util}, \ft{bc_util}은 2012년 대비 분포 이동이 가장 크다(2018년 PSI 0.34).
+\end{itemize}
+\Intuit{위험은 커지는데 가격은 내려갔다. 과거 데이터로 맞춘 확률이 실제보다 낮게 나온 이유다.}
+
+\section{결측 구조}
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{@{}lL@{}}\toprule
+패턴 & LC에서 본 것\\\midrule
+구조적 결측 & \ft{sec_app_*}는 개인 신청에서 100\% 결측. 단, 공동신청인데도 6\%가 비어 있음\\
+사건 없음 & \ft{mths_since_last_delinq}(52\%)는 연체 이력이 없어서 빔. 결측 자체가 정보\\
+MNAR 의심 & \ft{emp_length}가 비면 부도율 26.3\%, 있으면 19.0\%\\
+시기(MAR) & 13개 컬럼이 함께 29.8\% 결측, 21개 컬럼이 함께 2.4\% 결측. 발행 시기로 설명됨\\
+누수 & \ft{hardship_*}가 비어 있으면 부도율이 37\%p 낮음(어려움을 겪은 대출에만 값이 생김)\\\bottomrule
+\end{tabularx}
+\caption{결측 패턴(자세한 표는 \ft{결측_검증시트.xlsx}).}
+\end{table}
+
+\section{Feature engineering 결과}
+상환 부담(\ft{pti}, \ft{lti}), 신용 이력 개월 수, 근속 연수 숫자화, 우편번호 부도율을 추가해 as-of 학습으로 다시 평가했다.
+
+\begin{warnbox}[결과: 모두 기각]
+모든 후보의 선별 가치 변화가 $-0.01$\textasciitilde $+0.02$\%p였다. 같은 모델을 시드만 바꿔 돌린 차이(최대 0.09\%p)보다 작았다. EDA에서 본 등급 안 정보는 이미 원본 변수(소득, 상환액, 대출액, 주)에 들어 있었다.
+\Intuit{피처 하나의 효과보다 모델을 다시 돌렸을 때의 우연한 차이가 더 컸다. 한 번 돌려 본 비교로 피처를 고르면 안 된다.}
+\end{warnbox}
+
+% ======================================================================
+\chapter{데이터와 검증 기법}
+
+\section{Data leakage}
+\begin{keybox}[정의]
+Leakage는 예측 시점에 알 수 없는 정보가 모델 입력에 섞이는 것이다. 시험 전에 정답지를 보는 것과 같다.
+\Intuit{점수가 너무 좋으면 먼저 누수를 의심한다.}
+\end{keybox}
+
+\section{종결 표본 편향과 censoring}
+Current 대출은 결과를 모른다(\textbf{censoring}). 종결 대출만 쓰면, 최근 발행분일수록 일찍 끝난 대출(부도 포함)만 남아 부도율이 부풀려진다. 결과를 모르는 대출까지 쓰는 표준 방법이 \textbf{competing risks}(부도 vs 상환) 누적 발생률이다.
+
+\begin{formulabox}[Aalen--Johansen 누적 부도율]
+\[ S(t)=\prod_{u\le t}\Bigl(1-\frac{d_1(u)+d_2(u)}{n(u)}\Bigr),\qquad
+\mathrm{CIF}_1(t)=\sum_{u\le t} S(u-1)\,\frac{d_1(u)}{n(u)} \]
+$n(u)$: $u$개월째 위험 집합, $d_1$: 부도, $d_2$: 상환.
+\end{formulabox}
+
+\section{As-of 학습과 시간 분할}
+연도 Y의 대출을 고를 때는 Y년 1월 1일 이전에 발행되고 그 전에 결과가 확정된 대출로만 학습한다. 부도는 마지막 납부 후 약 5개월 뒤 상각되므로 그만큼 늦게 확정된다고 본다.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{@{}lrr@{}}\toprule
+분할 방식 & AUC & 해석\\\midrule
+무작위 분할 & 약 0.73 & 미래 정보가 섞여 낙관적\\
+as-of 시간 분할 & 0.62\textasciitilde 0.68 & 실제 투자 상황에 가까움\\\bottomrule
+\end{tabular}
+\caption{같은 LightGBM의 예측력.}
+\end{table}
+
+\begin{warnbox}[가정이 결과를 바꾼다]
+상각 지연을 5개월로 두면 2016년 초 학습 표본의 부도율은 17.4\%로 최종 18.1\%보다 낮다. 지연을 0으로 두면 22.2\%로 높다. 편향의 방향이 가정에 달려 있다.
+\end{warnbox}
+
+\section{결측 메커니즘}
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{@{}lL@{}}\toprule
+유형 & 뜻\\\midrule
+MCAR & Missing completely at random. 완전히 우연한 결측\\
+MAR & Missing at random. 관측된 다른 변수로 설명되는 결측(예: 발행 시기)\\
+MNAR & Missing not at random. 빠진 값 자체 때문에 빔. 데이터만으로 증명 불가\\
+구조적 & 해당 사항이 없어서 빔(예: 개인 신청의 공동신청 컬럼)\\\bottomrule
+\end{tabularx}
+\caption{결측 유형.}
+\end{table}
+
+\begin{insight}[Target encoding]
+우편번호처럼 범주가 많은 변수는 범주별 부도율로 바꿔 쓸 수 있다. 이때 자기 행의 정답을 쓰지 않도록 \textbf{out-of-fold}로 계산하고, 건수가 적은 범주는 전체 평균 쪽으로 \textbf{smoothing}한다.
+\end{insight}
+
+% ======================================================================
+\chapter{수익률과 비교 기준}
+
+\section{네 가지 수익률 정의}
+같은 대출도 정의에 따라 수익률이 크게 달라진다. 2013년 발행분 기준으로 비교한다.
+
+\begin{formulabox}[정의]
+\begin{align*}
+\text{단순 연환산:}\quad & r=\Bigl(\tfrac{\text{총 상환액}}{\text{대출액}}\Bigr)^{12/T}-1\\
+\text{IRR:}\quad & \sum_{k=0}^{H}\frac{CF_k}{(1+m)^k}=0,\qquad \mathrm{IRR}=(1+m)^{12}-1\\
+\text{재투자 수익률:}\quad & FV=\sum_k CF_k(1+g)^{T-k},\qquad R=(FV/P)^{12/T}-1
+\end{align*}
+\end{formulabox}
+
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{@{}lrL@{}}\toprule
+정의 & 2013년 & 가정\\\midrule
+수업식(부도면 0) & 11.9\% & 부도의 원금 손실을 무시\\
+단순 연환산(우승 논문) & 2.8\% & 매달 돌려받은 원리금이 놀고 있다고 봄\\
+국채 재투자 & 3.3\% & 돌려받은 돈을 국채에 넣음\\
+통합 IRR(수수료 1\% 후) & 8.9\% & 돌려받은 돈을 같은 수익률로 재투자\\
+국채(3년) & 0.8\% & 비교 기준\\\bottomrule
+\end{tabularx}
+\caption{같은 대출, 네 가지 숫자.}
+\end{table}
+
+\begin{workout}[왜 단순 연환산은 낮게 나오나]
+\Step{1} 금리 12\%, 36개월, 약정대로 다 갚은 대출의 월 납입금은 원금의 약 3.32\%다. \Concept{원리금 균등 상환}
+\Step{2} 총 상환액 \ensuremath{\div} 원금 $\approx 1.196$, 단순 연환산은 $1.196^{1/3}-1\approx 6.1\%$.
+\Step{3} 하지만 돈은 매달 돌아오므로 실제 수익률(IRR)은 $1.01^{12}-1=12.7\%$다. \Concept{IRR}
+\Ans{단순 연환산은 돌려받은 돈을 다시 투자하지 않는다고 보기 때문에 약정 금리의 절반 정도로 나온다.}
+\end{workout}
+
+\section{Cohort(발행월 묶음)}
+같은 달에 발행된 대출을 하나의 포트폴리오로 보고 IRR을 계산한다. 발행월 사이의 차이가 곧 ``언제 투자했느냐''의 위험이다.
+
+\section{무위험수익률(rf)의 선택}
+과제가 정한 기준은 국채다. 어떤 국채를 쓸지는 우리가 고른다.
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{@{}lrrL@{}}\toprule
+기준 & 평균 & 전부 승인 초과수익 & 메모\\\midrule
+3개월 국채 & 0.15\% & +5.62\%p & 교과서적 rf\\
+만기 맞춘 국채(기본) & 0.94\% & +4.86\%p & 과제 정의에 충실\\
+국채 +3\%p & 3.94\% & +1.86\%p & 유동성 보상 가정\\
+회사채 BAA & 4.91\% & +0.81\%p & 17개 발행월에서 회사채보다 낮음\\\bottomrule
+\end{tabularx}
+\caption{비교 기준을 바꾸면 결론의 강도가 바뀐다.}
+\end{table}
+\begin{warnbox}[회사채는 rf가 아니다]
+회사채를 빼서 계산한 비율은 Sharpe가 아니라 \textbf{information ratio}다. BAA는 장기채이고 약속 수익률이라 LC에 불리한 비교다.
+\end{warnbox}
+
+% ======================================================================
+\chapter{모델과 보정}
+
+\section{Logistic regression과 LightGBM}
+\begin{itemize}
+\item \textbf{Logistic regression}: 해석이 쉬운 기준 모델. 학습 데이터가 적은 해(2013년)에는 LightGBM보다 나았다(AUC 0.646 vs 0.623).
+\item \textbf{LightGBM}: gradient boosting tree. 파라미터는 고정하고(튜닝 효과 약 0.001), 시드 5개의 예측을 평균한다.
+\item 실전 조건에서는 금리만 쓴 모델도 비슷한 예측력을 보였다. 복잡한 모델의 가치는 수익보다 \textbf{손실 꼬리를 줄이는 데} 있었다(승인 부도율 14.5\% \ensuremath{\to} 12.4\%).
+\end{itemize}
+
+\section{기대수익과 LGD}
+\begin{formulabox}[연 기대수익(근사)]
+\[ E[r]=(1-\hat p)\,r_{\text{약정}}-\hat p\cdot\mathrm{LGD} \]
+$\hat p$: 예측 부도확률, LGD: 부도 시 손실률(그 시점 확정 부도 대출 평균).
+\end{formulabox}
+
+\section{확률 보정(calibration)}
+as-of 학습 확률은 수준이 틀렸다(2013년 예측 6.1\% vs 실제 12.2\%). 세 방법을 시험했다.
+\begin{itemize}
+\item \textbf{Isotonic regression}: 예측값과 실제 결과를 단조 함수로 맞춤
+\item \textbf{만기 도달 보정}: 그 시점에 이미 만기까지 지켜본 대출로만 맞춤
+\item \textbf{Logit shift}: $\operatorname{logit}\hat p'=\operatorname{logit}\hat p+c$, 평균이 생존분석 추정치가 되게 $c$를 고름
+\end{itemize}
+\begin{warnbox}[결과: 모두 실패]
+원인은 표본 편향보다 \textbf{신용 악화}였다. 과거에 맞추는 보정은 추세를 따라가지 못한다. 대신 PD 과소추정과 LGD 과대추정(시점 52\textasciitilde 62\% vs 실제 36.5\%)이 서로 상쇄돼, 보정하지 않은 조합이 투자 성과가 가장 좋았다.
+\end{warnbox}
+
+% ======================================================================
+\chapter{평가 지표}
+
+\section{Sharpe ratio와 그 함정}
+\begin{formulabox}[과제식 Sharpe와 항등식]
+\[ \mathrm{SR}=\frac{\bar x}{s_x},\quad x_i=a_i e_i \qquad\Longrightarrow\qquad
+\mathrm{SR}=\frac{\sqrt a\, m}{\sqrt{s^2+(1-a)m^2}} \]
+$a$: 승인 비율, $m,s$: 승인 대출 초과수익의 평균\ensuremath{\cdot}표준편차, 거절 자금은 초과수익 0.
+\end{formulabox}
+\begin{whybox}[역U자의 정체]
+승인 비율이 줄면 $\sqrt a$ 때문에 SR이 기계적으로 변한다. 무작위로 25\%만 승인해도 SR이 $-0.122$에서 $-0.061$로 약 $\sqrt{0.25}$배가 됐다. 선별 실력과 투자 비중 효과가 섞여 있다.
+\end{whybox}
+
+\section{Information ratio}
+\[ \mathrm{IR}=\frac{\overline{R-B}}{s_{R-B}} \]
+비교 지수 $B$(예: 회사채) 대비 초과수익의 안정성이다. 회사채 기준으로 보면 선별 규칙의 IR은 1.90, 전부 승인은 1.08이었다.
+
+\section{RAROC과 EVA}
+\begin{formulabox}[은행 관점]
+\[ \mathrm{RAROC}=\frac{r-\mathrm{EL}-f-o}{K},\qquad \mathrm{EVA}=r-\mathrm{EL}-f-o-hK \]
+\[ K=\mathrm{LGD}\Bigl[N\Bigl(\tfrac{G(\mathrm{PD})+\sqrt{R}\,G(0.999)}{\sqrt{1-R}}\Bigr)-\mathrm{PD}\Bigr],\quad R=0.03w+0.16(1-w) \]
+EL: 예상손실, $f$: 조달비용, $o$: 운영비, $h$: 요구수익률, $K$: Basel 기타 소매 자본, $w=\frac{1-e^{-35\mathrm{PD}}}{1-e^{-35}}$.
+\end{formulabox}
+\begin{warnbox}[주 지표로 쓰지 않은 이유]
+기본 가정에서 RAROC 중앙값이 94\%라 대출의 99\%를 승인했다. 결과가 데이터보다 비용\ensuremath{\cdot}자본 가정에 좌우된다.
+\end{warnbox}
+
+\section{꼬리 위험과 효용}
+\begin{itemize}
+\item \textbf{CVaR(하위 5\% 평균)}: 최악 구간의 평균 손실. 대출 수익은 모든 등급에서 음의 skewness다.
+\item \textbf{Sortino ratio}: 하방 변동성만 위험으로 본다. 이번 데이터에서는 Sharpe와 순위가 거의 같았다.
+\item \textbf{확실성 등가}: $\mathrm{CE}=\bar X-\tfrac{\gamma}{2}\mathrm{Var}(X)$. 위험회피 $\gamma=50$에서도 최적은 전부 승인이었다. 분산된 포트폴리오에서는 규모가 위험보다 중요하다.
+\end{itemize}
+
+\section{선별 곡선}
+\begin{formulabox}[선별 가치]
+\[ \mathrm{SV}=\frac{1}{|Q|}\sum_{q\in Q}\bigl[\mathrm{ER}_{\text{model}}(q)-\mathrm{ER}_{\text{random}}(q)\bigr],\quad Q=\{0.1,\dots,0.9\} \]
+$\mathrm{ER}(q)$: 점수 상위 $q$를 승인했을 때 승인 대출의 국채 대비 초과 IRR.
+\end{formulabox}
+기대수익 순위의 SV는 1.03\%p(95\% 구간 0.95\textasciitilde 1.12), 부도확률 순위는 0.22\%p였다. 임계값을 고르는 자의성이 없다. 같은 생각은 profit scoring(Serrano-Cinca \& Gutiérrez-Nieto, 2016), EMP(Verbraken 외, 2014)에 이미 있다.
+
+\section{Brinson decomposition}
+\begin{formulabox}[배분 \ensuremath{\cdot} 선별 \ensuremath{\cdot} 상호작용]
+\begin{align*}
+\text{배분}&=\sum_g (w^s_g-w^b_g)(R^b_g-R^b), \qquad
+\text{선별}=\sum_g w^b_g(R^s_g-R^b_g),\\
+\text{상호작용}&=\sum_g (w^s_g-w^b_g)(R^s_g-R^b_g)
+\end{align*}
+$g$: 등급(또는 세부등급), $w$: 금액 비중, $R$: pooled IRR, $s$: 전략, $b$: 전부 승인.
+\end{formulabox}
+\begin{keybox}[결과]
+세부등급 35개 기준 등급 안 선별 효과가 2014\textasciitilde 2016년 0.69\textasciitilde 1.11\%p, 2017년 1.64\%p였고, 배분 효과는 0\textasciitilde 0.23\%p였다. 2013년만 배분이 더 컸다.
+\Intuit{펀드매니저로 치면 ``좋은 업종을 많이 산'' 사람이 아니라 ``같은 업종 안에서 좋은 종목을 고른'' 사람이다.}
+\end{keybox}
+
+\section{예측 지표}
+\begin{itemize}
+\item \textbf{AUC}: 부도와 정상을 순위로 얼마나 잘 가르는지. 0.5는 동전 던지기.
+\item \textbf{Brier score}: $\frac1n\sum(\hat p_i-y_i)^2$. 확률 수준까지 본다.
+\item \textbf{ECE}: 예측 구간별 (평균 예측 $-$ 실제 비율)의 가중 평균. 보정이 맞는지 본다.
+\item \textbf{PSI}: $\sum(b-a)\ln(b/a)$. 분포가 시간에 따라 얼마나 이동했는지. 0.1 이상이면 의미 있는 변화.
+\end{itemize}
+
+% ======================================================================
+\chapter{검증 방법론}
+
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{@{}lL@{}}\toprule
+기법 & 하는 일\\\midrule
+Placebo(무작위 승인) & 선별 실력이 없으면 성과가 0이 나와야 함. 평가 방법이 가짜 성과를 만들지 않는지 확인\\
+Placebo(라벨 섞기) & 정답을 섞어 학습한 모델은 선별 가치가 0 근처여야 함(실제 0.01\%p)\\
+시드 반복 & 같은 모델을 시드 5개로 돌려 결론이 우연인지 확인\\
+Block bootstrap & 발행월 단위로 다시 뽑아 95\% 신뢰구간 계산(같은 달 대출은 함께 움직임)\\
+보류 구간 & 한 번도 안 쓴 구간(2017년)에서 같은 방향이 나오는지 확인\\
+사전 등록 & test를 받기 전에 가설\ensuremath{\cdot}규칙\ensuremath{\cdot}성공 기준을 고정(태그 \ft{test-protocol-v1})\\
+주장 장부 & 주장마다 근거와 상태(지지/잠정/기각)를 기록(\ft{docs/research_log.md})\\\bottomrule
+\end{tabularx}
+\caption{결론을 지키는 장치들.}
+\end{table}
+
+\begin{warnbox}[데이터 엿보기]
+같은 평가 구간을 여러 번 쓰면, 그 구간에 맞춘 결론을 고르게 된다. 지금까지 비교한 규칙\ensuremath{\cdot}지표 조합은 60개 이상이다. 그래서 최종 판단은 아직 안 본 공식 test로만 한다.
+\end{warnbox}
+
+\begin{qa}{Q. 결론이 틀렸던 적은?}
+있다. ``부도확률 순위는 무작위와 비슷하다''는 시드 하나로 본 착각이었다. 시드 5개와 부트스트랩으로 보니 유의하게 양수였고, 해마다 커졌다(2017년 2.00\%p). 그래서 기각하고 기록했다.
+\end{qa}
+
+% ======================================================================
+\chapter{앞으로 쓸 기법}
+
+\section{test 평가(고정됨)}
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{@{}lL@{}}\toprule
+가설 & 지지 기준\\\midrule
+H1 성과 귀속 & 2013\textasciitilde 16년 통합 등급 안 선별 $>0$이고 배분보다 크며, 4개 연도 중 3개 이상 양수\\
+H2 선별 가치 & 기대수익 순위 SV의 95\% 구간 하한 $>0$\\
+H3 국채 대비 & 전부 승인이 발행월의 90\% 이상에서 국채보다 높음\\
+H4 회사채 대비 & 선별 규칙의 BAA 이하 발행월 수 $<$ 전부 승인\\\bottomrule
+\end{tabularx}
+\caption{주 승인 규칙은 ``기대수익 $>$ 만기 국채''(R1).}
+\end{table}
+
+\section{남은 후보}
+\begin{itemize}
+\item \textbf{거시 변수}: 실업률 등으로 신용 악화를 설명할 수 있는지. 독립 관측이 48개월뿐이라 약할 수 있다.
+\item \textbf{60개월 대출 확장}: 종결 편향을 처리해야 한다.
+\item \textbf{조기상환 모형}: 정상 상환의 76\%가 조기상환이다. 부도 다음으로 큰 수익 변수다.
+\item \textbf{Partial dependence}: 핵심 피처의 방향을 단일 변수 그림으로 확인한다.
+\end{itemize}
+
+\begin{insight}[이 문서의 숫자]
+모든 숫자의 근거 파일은 \ft{docs/decisions.md}와 \ft{results/} 폴더에 있다. 피처 중요도는 \ft{scripts/17_feature_importance.py}, 결측 표는 \ft{docs/결측_검증시트.xlsx}로 다시 만들 수 있다.
+\end{insight}
+
+\end{document}

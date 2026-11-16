@@ -1,0 +1,80 @@
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2013 예측 완료 81069
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2014 예측 완료 140952
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2015 예측 완료 241970
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+/opt/homebrew/Caskroom/miniconda/base/envs/cmapss/lib/python3.11/site-packages/lightgbm/sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+2016 예측 완료 242270
+ 만기         연도       묶음     차이      배분     선별    상호작용
+ 36         통합    등급 7개 0.0102  0.0008 0.0104 -0.0008
+ 36         통합 세부등급 35개 0.0102  0.0011 0.0102 -0.0008
+ 36         통합  금리 20구간 0.0102  0.0011 0.0101 -0.0008
+ 36         통합    대출 목적 0.0102  0.0001 0.0102 -0.0001
+ 36         통합     거주 주 0.0102  0.0004 0.0100 -0.0003
+ 36         통합   금액 5구간 0.0102  0.0000 0.0101  0.0000
+ 36       2013    등급 7개 0.0120  0.0081 0.0039 -0.0002
+ 36       2013  금리 20구간 0.0120  0.0094 0.0032 -0.0009
+ 36       2014    등급 7개 0.0084  0.0001 0.0093 -0.0008
+ 36       2014  금리 20구간 0.0084 -0.0000 0.0093 -0.0007
+ 36       2015    등급 7개 0.0078  0.0011 0.0076 -0.0007
+ 36       2015  금리 20구간 0.0078  0.0013 0.0075 -0.0008
+ 36       2016    등급 7개 0.0116  0.0020 0.0118 -0.0018
+ 36       2016  금리 20구간 0.0116  0.0024 0.0115 -0.0020
+ 60 2013~15 통합    등급 7개 0.0125  0.0004 0.0130 -0.0002
+ 60 2013~15 통합  금리 20구간 0.0125  0.0005 0.0128 -0.0001
+           특성  표준화 평균차(승인-거절)
+      연소득(로그)           0.721
+    부채비율(dti)          -0.595
+     근속 연수 결측          -0.303
+       모기지 보유           0.241
+      리볼빙 사용률          -0.231
+      FICO 하한           0.162
+최근 24개월 개설 계좌           0.083
+금리(같은 세부등급 안)           0.057
+          대출액           0.038
+     부채 통합 목적          -0.012
+  최근 6개월 신용조회           0.004
+  연도  학습 표본     배분     선별  배분 비중
+2013  11345 0.0081 0.0039 0.6788
+2014  27440 0.0001 0.0093 0.0063
+2015  67648 0.0011 0.0076 0.1256
+2016 156153 0.0020 0.0118 0.1447
+Q1: 선별>배분인 묶음 6/6, 금리 20구간 선별/등급 선별 = 0.97 -> 유지
+Q3: 60개월 등급 기준 선별 0.0130 vs 배분 0.0004 -> 유지

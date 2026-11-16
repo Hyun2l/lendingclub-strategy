@@ -1,0 +1,41 @@
+\documentclass[11pt]{report}
+\input{neuron-style}
+\begin{document}
+\chapter{Chapter Title}
+\section{Section}
+본문은 English terms + 한국어 서술로 쓴다. Formula는 질문 \ensuremath{\to} 예시 \ensuremath{\to} 유도 \ensuremath{\to} 검산 순서.
+
+\begin{keybox}[Key idea]
+핵심 정의 한 단락.
+\Intuit{쉬운 말 한 줄.}
+\end{keybox}
+
+\begin{formulabox}[Formula]
+\[ y = f(x) \]
+\end{formulabox}
+
+\begin{workout}[예제 제목]
+\Use{concept A (\S1.1)}
+\Step{1} 첫 단계. \Concept{concept A}
+\Step{2} 둘째 단계. \Concept{concept B}
+\Ans{답.}
+\Verify{검산.}
+\Trap{흔한 실수.}
+\end{workout}
+
+\begin{warnbox}[주의]경고 내용.\end{warnbox}
+\begin{whybox}[Why it works]이유.\end{whybox}
+\begin{prof}[강의 포인트]강조 내용.\end{prof}
+\begin{insight}[실무]실무 메모.\end{insight}
+\begin{career}[면접]면접 포인트.\end{career}
+\begin{qa}{Q. 질문?}답.\end{qa}
+
+\begin{table}[h]\centering\small
+\begin{tabular}{@{}lll@{}}\toprule 개념 & 뜻 & 예\\\midrule A & a & 1\\\bottomrule\end{tabular}
+\caption{요약 표.}
+\end{table}
+
+\begin{lstlisting}
+SELECT col FROM t WHERE x = 1;   -- code comments in English
+\end{lstlisting}
+\end{document}

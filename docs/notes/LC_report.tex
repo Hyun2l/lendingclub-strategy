@@ -1,0 +1,38 @@
+\documentclass[11pt]{report}
+\input{neuron-style}
+\usepackage{float}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\usepackage{pgfplots}\pgfplotsset{compat=1.18}
+\newcommand{\ft}[1]{\texttt{\detokenize{#1}}}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\lstdefinestyle{py}{language=Python,basicstyle=\ttfamily\small,keywordstyle=\bfseries,commentstyle=\itshape\color{black!55},
+  frame=leftline,framerule=0.8pt,rulecolor=\color{black!45},xleftmargin=3mm,showstringspaces=false,breaklines=true,columns=fullflexible}
+\lstset{style=py}
+\begin{document}
+
+\begin{titlepage}\centering
+\vspace*{30mm}
+{\Huge\bfseries LendingClub 대출 승인 전략\par}\medskip
+{\Large 팀 보고서: 문제의식, 방법, 검증, 결론\par}
+\vspace{12mm}
+{\large 서울대 ABS 14기 팀 프로젝트 내부용\par}
+\vspace{4mm}
+{\small 2026년 11월 16일 개정 \ensuremath{\cdot} 1--38단계 실험 \ensuremath{\cdot} 숫자는 모두 공식 train 데이터 결과(예시라고 적은 것 제외)\par}
+\vfill
+{\small 기초(1--4장)는 강의노트와 같은 내용이다. 처음 읽는 사람은 요약을 읽은 뒤 1장부터, 이미 아는 사람은 5장부터 읽으면 된다.\par}
+\end{titlepage}
+
+\tableofcontents
+\input{report/r0}
+\input{lecture/ch1}
+\input{lecture/ch2}
+\input{lecture/ch3}
+\input{lecture/ch4}
+\input{report/r5}
+\input{report/r6}
+\input{report/r7}
+\input{report/r8}
+\input{report/r9}
+\appendix
+\input{report/rapp}
+\end{document}

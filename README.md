@@ -36,6 +36,19 @@
 | 11 | 새 비교 방법 검증 | 완료 (novel-metrics 브랜치) |
 | 12~13 | EDA와 피처 엔지니어링 | 완료 (feature-engineering 브랜치) |
 | 14 | 비교 방법 재검증 | 완료 (validate-methods 브랜치) |
+| 15 | test 평가 규칙 고정 | 완료 (test-protocol 브랜치, 태그 test-protocol-v1) |
+| 16~17 | 결측 검증 시트, 피처 중요도·정리 문서 | 완료 |
+| 18~19 | 후보 A 심화 검증(탐색) | 완료 (within-grade 브랜치) |
+| 20~22 | EDA, 결측 처리 방침 확정 | 완료 (eda-fe-models 브랜치) |
+| 23~24 | 모델 비교(선형·트리·부스팅 3종, 탐색) | 완료 (eda-fe-models 브랜치) |
+| 25~26 | 짝 부트스트랩, 종결 편향 시뮬레이션(검증) | 완료 (eda-fe-models 브랜치) |
+| 27~29 | 컬럼 사전 최신화, funded_amnt_inv 민감도, 같은 금액 투자 민감도 | 완료 (eda-fe-models 브랜치) |
+| 30 | 발행월별 포트폴리오 Sharpe 검증(팀원 제안서) | 완료 (eda-fe-models 브랜치) |
+| 31 | 절충 규칙 3종(탐색) | 완료 (eda-fe-models 브랜치) |
+| 32 | Sharpe 정의 세 가지의 크기, Sharpe로 고른 승인비율 | 완료 (eda-fe-models 브랜치) |
+| 33 | Sortino, NPV, 등급 중립 롱숏, 등급별 Sharpe | 완료 (eda-fe-models 브랜치) |
+| 34 | 근본 가정 재점검 6가지, 단순 규칙 동점 진단 | 완료 (eda-fe-models 브랜치) |
+| 35 | test 프로토콜 v2 고정과 예행연습 | 완료 (eda-fe-models 브랜치, 태그 test-protocol-v2) |
 
 ## 결정 기록
 각 단계에서 무엇을 왜 골랐는지 `docs/decisions.md`에 기록.

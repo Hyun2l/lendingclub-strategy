@@ -1,0 +1,131 @@
+\chapter*{How to Read}
+\addcontentsline{toc}{chapter}{How to Read}
+\markboth{How to Read}{}
+
+이 노트는 세 독자를 함께 생각하고 쓴다.
+\begin{itemize}[leftmargin=*]
+\item \textbf{나(공부)}: 코드는 돌렸지만 개념이 흐릿한 부분을 기초부터 다시 잡는다. 각 장은 ``질문 \ensuremath{\to} 작은 예시 \ensuremath{\to} 식 \ensuremath{\to} 숫자 대입 \ensuremath{\to} 우리 데이터 결과'' 순서로 간다.
+\item \textbf{취업 준비}: 각 장 끝의 \textit{Career note}와 부록 A의 면접 Q\&A는 ``이 프로젝트에서 무엇을 했고 왜 그렇게 했나''를 2분 안에 말할 수 있게 정리한 것이다.
+\item \textbf{팀원과 교수님}: 9장은 전체 이야기를 발표 순서로 다시 묶는다. 결론만 필요하면 Lecture Highlights와 9장만 읽어도 된다.
+\end{itemize}
+
+\textbf{처음 읽을 때.} 각 핵심 박스 끝의 \textbf{직관:} 줄만 순서대로 읽으면 전체 흐름이 한 번에 잡힌다. 그다음 Example 박스를 손으로 따라 계산한다. 예시 숫자는 모두 \ft{docs/notes/lecture/code/checks.py}로 검산했다.
+
+\textbf{표기.} PD는 부도확률(probability of default), LGD는 부도 시 손실률(loss given default), $r$은 약정 금리, $tb$는 같은 달 같은 만기의 미 국채 수익률이다. ``선별 가치''는 무작위 승인 대비 초과 IRR(\%p)이다. 코드 경로는 \ft{src/lc/...}, 실험은 \ft{scripts/NN_...py}로 적는다.
+
+\chapter*{Glossary}
+\addcontentsline{toc}{chapter}{Glossary}
+\markboth{Glossary}{}
+{\small
+\begin{longtable}{@{}p{43mm}p{40mm}p{70mm}@{}}\toprule
+English & 한국어 & 한 줄 뜻\\\midrule\endhead
+Amortization & 원리금 균등 상환 & 매달 같은 금액으로 이자와 원금을 함께 갚는 방식\\
+As-of (point-in-time) training & 시점 학습 & 그날 알 수 있던 정보로만 학습\\
+AUC & ROC 곡선 아래 면적 & 부도 하나와 정상 하나를 뽑았을 때 부도에 더 높은 점수를 줄 확률\\
+Availability rule & 가용성 규칙 & 학습 시점에 50\% 넘게 비어 있던 변수는 뺀다\\
+Block bootstrap & 묶음 부트스트랩 & 서로 얽힌 관측을 묶음(발행월) 단위로 다시 뽑는 방법\\
+Brier score & 브라이어 점수 & 예측 확률과 0/1 결과 차이의 제곱 평균, 확률 수준의 정확도\\
+Brinson attribution & 브린슨 성과 귀속 & 초과수익을 배분, 선별, 상호작용으로 나눔\\
+Calibration & 확률 보정 & 예측 확률을 실제 빈도에 맞추는 일\\
+Censoring & 중도 절단 & 관측이 끝날 때 아직 결과가 안 난 상태\\
+Charge-off lag & 상각 지연 & 마지막 납부 후 부도 확정까지 걸리는 시간(약 5개월)\\
+Cohort & 코호트 & 같은 달에 발행된 대출 묶음\\
+Data leakage & 데이터 누수 & 결정 시점에 알 수 없던 정보가 학습에 섞이는 것\\
+Data snooping & 데이터 엿보기 & 같은 데이터를 반복해 보며 고르다가 우연에 맞추는 것\\
+Early stopping & 조기 종료 & 검증 손실이 더 안 줄면 학습을 멈춤\\
+Elastic Net & 엘라스틱 넷 & L1과 L2 벌점을 섞은 회귀\\
+Excess return & 초과수익 & 수익률 $-$ 비교 기준 수익률\\
+Expected return score & 기대수익 점수 & $(1-p)r - p\cdot\mathrm{LGD} - tb$\\
+Gradient boosting & 그래디언트 부스팅 & 앞 나무의 오차를 다음 나무가 고치며 쌓는 앙상블\\
+Holdout & 보류 구간 & 마지막 확인용으로 아껴 둔 데이터\\
+Holm correction & 홈 보정 & 여러 검정을 할 때 p값을 단계적으로 엄격하게 보정\\
+Information ratio & 정보비율 & 기준 대비 초과수익 평균 / 그 표준편차\\
+IRR & 내부수익률 & 현금흐름의 현재가치를 0으로 만드는 할인율\\
+Information value (IV) & 정보 가치 & 한 변수가 부도/정상을 가르는 힘(WOE의 가중합)\\
+Lasso (L1) & 라소 & 계수 절댓값 합에 벌점, 일부 계수를 정확히 0으로 만듦\\
+LGD & 부도 시 손실률 & 부도가 나면 원금 중 잃는 비율\\
+MAR / MCAR / MNAR & 결측 메커니즘 & 결측 이유가 관측값/무작위/결측된 값 자체에 달려 있음\\
+PD & 부도확률 & 대출이 부도날 확률\\
+Placebo test & 위약 검정 & 효과가 없어야 할 조건(라벨 섞기)에서 효과가 0인지 확인\\
+Pre-registration & 사전 등록 & 결과를 보기 전에 가설과 판정 기준을 고정\\
+RAROC & 위험조정 자본수익률 & (수익 $-$ 비용 $-$ 예상손실)/경제적 자본\\
+Ridge (L2) & 릿지 & 계수 제곱합에 벌점, 계수를 고르게 줄임\\
+Resolution bias & 종결 편향 & 이미 끝난 대출만 보면 빨리 끝난 대출(부도, 조기상환)이 과대 대표됨\\
+Selection curve & 선별 곡선 & 승인비율별 (선택 포트폴리오 수익 $-$ 무작위 수익)\\
+Selection value & 선별 가치 & 선별 곡선의 평균 높이\\
+Sharpe ratio & 샤프 지수 & 초과수익 평균 / 표준편차\\
+Survivorship (resolved-only) bias & 종결 표본 편향 & 결과가 난 대출만 남겨서 생기는 왜곡\\
+Target encoding & 타깃 인코딩 & 범주를 그 범주의 부도율로 바꿈(누수 주의)\\
+Walk-forward & 순차 전진 검증 & 시간 순서대로 학습 기간을 늘리며 다음 기간을 평가\\
+WOE & 증거 가중치 & 구간별 $\ln(\text{정상 비중}/\text{부도 비중})$\\\bottomrule
+\end{longtable}}
+
+\chapter*{Key Formulas}
+\addcontentsline{toc}{chapter}{Key Formulas}
+\markboth{Key Formulas}{}
+{\small
+\begin{longtable}{@{}p{34mm}p{58mm}p{60mm}@{}}\toprule
+개념 & 식 & 뜻\\\midrule\endhead
+월 상환액 & $A = P\,\dfrac{i}{1-(1+i)^{-T}},\ i=r/12$ & 원금 $P$를 $T$개월에 같은 금액으로 갚는 금액\\[2mm]
+IRR & $\sum_{t=0}^{H} \dfrac{CF_t}{(1+m)^t}=0,\ \ \mathrm{IRR}=(1+m)^{12}-1$ & 돈을 넣고 돌려받은 흐름이 실제로 낸 연 수익률\\[2mm]
+단순 연환산 & $(\text{받은 총액}/P)^{12/T}-1$ & 재투자를 무시하는 근사(우승 논문식)\\
+기대수익 점수 & $s=(1-p)\,r-p\,\mathrm{LGD}-tb$ & 국채보다 얼마나 더 벌 것으로 기대되는가\\
+LGD 추정 & $1-\overline{(\text{받은 총액}/P)}_{\text{부도}}$ & 그 시점까지 확정된 부도 대출의 평균 손실\\
+Sharpe & $\mathrm{SR}=\bar{x}/\mathrm{sd}(x)$ & 위험 한 단위당 초과수익\\
+$\sqrt{a}$ 항등식 & $\mathrm{SR}=\sqrt{a}\,m/\sqrt{s^2+(1-a)m^2}$ & 거절을 0으로 두면 승인비율 $a$에 따라 기계적으로 변함\\
+Logistic & $p=\sigma(z)=1/(1+e^{-z}),\ z=\beta_0+\beta^\top x$ & 선형 점수를 확률로\\
+L1 / L2 / EN 벌점 & $\lambda\|\beta\|_1,\ \lambda\|\beta\|_2^2,\ \lambda(\alpha\|\beta\|_1+(1-\alpha)\|\beta\|_2^2)$ & 계수를 줄여 과적합 방지\\
+WOE, IV & $\mathrm{WOE}_k=\ln\dfrac{g_k/G}{b_k/B},\ \mathrm{IV}=\sum_k(\tfrac{g_k}{G}-\tfrac{b_k}{B})\mathrm{WOE}_k$ & 구간별 증거와 변수 전체의 힘\\[2mm]
+Brier & $\frac1n\sum(p_i-y_i)^2$ & 확률 수준의 정확도\\
+AUC & $P(p_{\text{부도}}>p_{\text{정상}})$ & 순위의 정확도\\
+Brinson & 배분 $\sum(w^p_k-w^b_k)R^b_k$, 선별 $\sum w^b_k(R^p_k-R^b_k)$, 상호작용 $\sum(w^p_k-w^b_k)(R^p_k-R^b_k)$ & 초과수익의 출처 분해\\
+선별 가치 & $\frac{1}{9}\sum_{q}\big[\mathrm{IRR}(\text{상위 }q)-\mathrm{IRR}(\text{무작위 }q)\big]$ & 순위가 돈을 얼마나 더 버는가\\
+Holm & $p_{(j)}^{adj}=\max_{i\le j}\min\{1,(k-i+1)p_{(i)}\}$ & 여러 비교의 오류율 관리\\\bottomrule
+\end{longtable}}
+
+\chapter*{Index of Worked Examples}
+\addcontentsline{toc}{chapter}{Index of Worked Examples}
+\markboth{Index of Worked Examples}{}
+{\small
+\begin{longtable}{@{}p{12mm}p{80mm}p{60mm}@{}}\toprule
+절 & 예제 & 사용 개념\\\midrule\endhead
+\S2.1 & 1만 달러, 연 12\%, 36개월 대출의 월 상환액 & 원리금 균등 상환\\
+\S2.2 & 정상 상환 대출의 IRR이 12\%가 아니라 12.68\%인 이유 & IRR, 월 복리\\
+\S2.2 & 10개월 내고 부도 난 대출의 IRR과 단순 연환산 & 현금흐름 복원, 손실률\\
+\S2.3 & 정상 9건 + 부도 1건 포트폴리오의 IRR & pooled IRR, 수수료\\
+\S3.3 & 4건짜리 종결 편향 & resolution bias\\
+\S4.2 & 결측 구간의 WOE와 IV & WOE, IV, MNAR\\
+\S5.1 & 로지스틱 함수에 숫자 넣기 & sigmoid\\
+\S5.6 & 두 대출의 기대수익 점수 비교 & 기대수익, LGD\\
+\S6.1 & 승인비율에 따른 Sharpe 변화 & $\sqrt{a}$ 항등식\\
+\S6.3 & 5건짜리 AUC와 Brier & 순위 vs 수준\\
+\S6.5 & 두 등급 Brinson 분해 & 배분, 선별, 상호작용\\
+\S7.3 & 월별 차이 5개의 부트스트랩 구간 & bootstrap\\
+\S7.4 & p값 세 개의 Holm 보정 & multiple testing\\\bottomrule
+\end{longtable}}
+
+\chapter*{Lecture Highlights}
+\addcontentsline{toc}{chapter}{Lecture Highlights}
+\markboth{Lecture Highlights}{}
+
+\begin{keybox}[이 프로젝트의 결론 다섯 줄]
+\begin{enumerate}[leftmargin=*]
+\item \textbf{수익률을 어떻게 재느냐가 답을 바꾼다.} 같은 2013--16년 36개월 대출이 단순 연환산으로는 국채보다 못하고, 현금흐름 IRR로는 48개 발행월 모두 국채보다 높다(IRR 5.73\% vs 0.87\%).
+\item \textbf{시간을 지키면 성능이 내려간다.} 무작위 분할 AUC 약 0.73이 시점 학습에서는 0.62--0.68이다. 진짜 성능은 뒤쪽이다.
+\item \textbf{기대수익 순위는 무작위보다 약 1.03\%p 더 번다}(95\% 구간 0.95--1.11, 발행월 부트스트랩). LightGBM과 XGBoost가 같은 값을 낸다.
+\item \textbf{그 추가 수익은 같은 등급 안에서 나온다.} LC 등급끼리의 가격은 대체로 공정했고, 등급이 덜 반영한 정보(소득, 상환 부담, 최근 계좌 개설)가 남아 있었다.
+\item \textbf{평가 표본 자체가 편향될 수 있다.} 이미 끝난 대출만 보면 부도확률 순위가 기대수익 순위를 이기는 것처럼 보인다(1--2년 관측 시 $-3.83$\%p). 전체를 보면 반대(+0.91\%p)다.
+\end{enumerate}
+\Intuit{좋은 모델보다 정직한 성적표가 먼저다. 무엇을 재고, 언제의 정보를 쓰고, 어떤 표본으로 채점하는지가 결론을 좌우했다.}
+\end{keybox}
+
+\begin{warnbox}[처음 판단이 틀렸던 것(정정 기록에서)]
+\begin{itemize}[leftmargin=*]
+\item 지난 우수 보고서의 ``부도율 24\%, 33\%''는 부도 \ensuremath{\div} 정상 비율이었다. 실제 부도율은 19.3\%, 25.1\%.
+\item ``부도확률 순위는 무작위와 비슷하다''(시드 1개)는 틀렸다. 시드 5개와 부트스트랩으로 보면 유의하게 양수이고 해마다 커진다.
+\item ``선별 곡선은 새로운 방법이다''는 틀렸다. 수익 기반 점수(Serrano-Cinca \& Guti\'errez-Nieto, 2016), EMP(Verbraken 외, 2014)가 이미 있다.
+\item 로지스틱이 2016년 AUC 0.508로 무너진 원인은 결측 처리가 아니라 \textbf{학습 때 없던 변수}였다.
+\item ``CatBoost는 새 컬럼을 조기 종결의 대리 변수로 배웠다''는 가설은 반증되었다(부도율 17.2\% vs 17.6\%).
+\item 2017년 보류 구간의 ``부도확률 순위 우위''는 종결 편향으로 재현되었다.
+\end{itemize}
+\end{warnbox}

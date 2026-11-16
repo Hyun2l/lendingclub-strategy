@@ -1,0 +1,16 @@
+<section id="proof" data-transition="fade" style="background:#F7F6F2;color:#14213D;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:44px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-size:28px;font-weight:700;color:#E07A2F">검증</p>
+<h2 style="font-size:64px;font-weight:900;line-height:1.2">"우연 아니냐"는 질문에 하나씩 답했다</h2>
+</div>
+<table style="font-family:'Noto Sans KR', Arial, sans-serif;font-size:28px;color:#14213D;width:1664px">
+<tr><th style="width:24%">의심</th><th style="width:44%">한 실험</th><th style="width:32%">결론</th></tr>
+<tr><td>운이 좋았던 것 아닌가</td><td>시드 여러 개, 정답을 섞은 가짜 모델, 발행월 단위 재표본(1만 번)</td><td>우연 아님. 가짜 모델은 0 근처</td></tr>
+<tr><td>모델 덕 아닌가</td><td>17종 비교(Lasso, 랜덤포레스트, XGBoost, CatBoost 등)</td><td>바꿔도 거의 같음</td></tr>
+<tr><td>피처·결측 처리 덕 아닌가</td><td>새 피처 6종, 결측 처리 9종 비교</td><td>거의 차이 없음</td></tr>
+<tr><td>채점이 편향되지 않았나</td><td>다 끝난 대출을 일부러 일찍 잘라 채점</td><td>착시 발견, test 읽는 법을 미리 정함</td></tr>
+<tr><td>미래 정보가 새지 않았나</td><td>컬럼마다 시점 점검, 약한 누수 후보 제거</td><td>결과 동일</td></tr>
+</table>
+<p style="font-size:30px;line-height:1.5;width:1600px">모든 판정 기준은 <b>결과를 보기 전에</b> 적어 두었고, 틀린 판단도 기록에 남겼다.</p>
+<aside>과녁을 먼저 그리고 화살을 쏜 셈입니다. 결과를 본 뒤에 기준을 정하면 무엇이든 성공으로 만들 수 있기 때문입니다. 실제로 처음 판단이 틀린 경우가 여러 번 있었고, 그때마다 정정 기록을 남겼습니다. 이 기록 자체가 신뢰의 근거입니다.</aside>
+</section>

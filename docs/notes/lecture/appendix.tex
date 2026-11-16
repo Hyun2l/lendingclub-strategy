@@ -1,0 +1,73 @@
+\chapter{면접 Q\&A}
+
+\begin{qa}{이 프로젝트를 2분 안에 설명해 보세요.}
+LendingClub 대출 175만 건으로 투자자의 승인 전략을 만들었다. 정확도 대신 현금흐름에서 복원한 IRR을 목표로 삼았고, 결정 시점에 알 수 있던 정보로만 학습하는 시점 학습을 썼다. 기대수익 순위가 무작위보다 연 1.03\%p(95\% 구간 0.95--1.11) 더 벌었고, Brinson 분해로 그 수익이 같은 등급 안의 선별에서 나온다는 것을 보였다. 모델 17종을 사전 기준으로 비교했지만 이 값을 바꾸지 못했고, 평가 표본의 종결 편향을 시뮬레이션으로 정량화했다.
+\end{qa}
+
+\begin{qa}{Data leakage를 어떻게 막았나요?}
+컬럼 수준: 승인 시점에 관측 가능한지로 판별해 상환 결과와 사후 갱신 컬럼을 뺐다. 행 수준: 연도 $Y$ 모델은 $Y$년 1월 1일까지 결과가 확정된 대출로만 학습했고, 부도 확정에 상각 지연 5개월을 넣었다. 전처리 수준: 결측 대치 값, 분위 자르기, target encoding을 모두 학습 데이터에서만(target encoding은 out-of-fold로) 계산했다.
+\end{qa}
+
+\begin{qa}{왜 무작위 분할을 쓰지 않았나요?}
+대출 결과는 경기와 LC 심사 기준에 따라 시간이 흐르며 변한다. 무작위 분할은 미래 대출로 과거를 맞히게 해 AUC를 0.73까지 부풀렸고, 시점 학습에서는 0.62--0.68이었다.
+\end{qa}
+
+\begin{qa}{AUC와 실제 수익이 왜 다른가요?}
+AUC는 순위만 본다. 기대수익 $(1-p)r-p\,\mathrm{LGD}$는 $p$의 크기가 금리와 곱해지므로 등급 간 순서가 확률 수준에 달려 있다. Random Forest는 AUC 1위였지만 선별 가치는 LightGBM보다 0.18\%p 낮았다(부트스트랩으로 유의).
+\end{qa}
+
+\begin{qa}{Ridge와 Lasso의 차이는?}
+Ridge는 L2 벌점으로 계수를 고르게 줄이고, Lasso는 L1 벌점으로 일부 계수를 정확히 0으로 만들어 변수 선택을 한다. L1 허용 영역은 모서리가 있는 마름모라 손실 등고선이 축 위의 모서리에 먼저 닿기 때문이다. 이 프로젝트에서는 $C$를 학습 데이터 안 검증 log loss로 골랐고, 둘의 차이는 잡음 안이었다.
+\end{qa}
+
+\begin{qa}{결측을 어떻게 처리했나요?}
+먼저 결측의 이유를 분류했다(구조적, 사건 없음, 시기에 따른 MAR, MNAR 의심). 트리는 결측을 그대로 두는 것이 가장 나았다. 선형 모델은 결측 처리보다 ``학습 때 거의 없던 변수''가 문제여서, 가용성 규칙(50\% 미만 제외) + 분위 자르기 + 중앙값으로 정했다. 이 규칙 없이 2016년 AUC가 0.508까지 무너졌다.
+\end{qa}
+
+\begin{qa}{결과가 우연이 아님을 어떻게 보였나요?}
+사전 등록된 판정 기준, 라벨 섞기 위약 검정, 다중 시드, 발행월 단위 짝 부트스트랩, Holm 다중비교 보정, 보류 구간, 그리고 test 프로토콜의 git 태그 고정.
+\end{qa}
+
+\begin{qa}{가장 크게 틀렸던 판단은?}
+두 가지. 첫째, 시드 1개 실험으로 ``부도확률 순위는 무작위와 비슷하다''고 했다가 다중 시드와 부트스트랩으로 기각했다. 둘째, 2017년 보류 구간에서 부도확률 순위가 이긴 것을 약점으로 봤는데, 이미 끝난 대출을 일부러 잘라 보니 같은 역전이 재현되어 종결 편향의 산물임을 알았다.
+\end{qa}
+
+\begin{qa}{LightGBM의 early stopping은 어떻게 했나요?}
+학습 데이터의 15\%를 무작위로 떼어 검증 log loss가 50번 연속 개선되지 않으면 멈췄다. 평가 연도는 쓰지 않았다. 떼는 표본이 시드에 따라 달라 시드 간 변동의 일부가 된다.
+\end{qa}
+
+\begin{qa}{현업이라면 무엇을 더 하겠습니까?}
+조기상환 위험을 별도 모델로(경쟁 위험 생존모형), LGD를 대출 특성으로 예측, 거시 변수(실업률)로 신용 사이클 반영, 그리고 실시간 운영 시 변수 가용성 모니터링(새 변수가 생기면 자동으로 가용성 규칙 적용).
+\end{qa}
+
+\chapter{Python 실습 코드}
+\section{예제 검산}
+본문 예제의 모든 숫자는 \ft{docs/notes/lecture/code/checks.py}로 다시 계산할 수 있다.
+\begin{lstlisting}
+import numpy as np
+from scipy.optimize import brentq
+
+def irr(cf):
+    f = lambda m: (cf / (1 + m) ** np.arange(len(cf))).sum()
+    m = brentq(f, -0.95, 1.0)           # monthly rate that zeroes the NPV
+    return (1 + m) ** 12 - 1            # annualize with monthly compounding
+
+P, r, T = 10000, 0.12, 36
+i = r / 12
+inst = P * i / (1 - (1 + i) ** -T)      # 332.14
+print(irr(np.r_[-P, np.full(T, inst)])) # 0.1268
+
+cf = np.zeros(16); cf[0] = -P; cf[1:11] = inst; cf[15] = 500
+print(irr(cf))                          # -0.768 (default after 10 payments)
+\end{lstlisting}
+
+\section{실험 재현 순서}
+\begin{lstlisting}[language=bash]
+python scripts/prepare_data.py          # raw CSV -> parquet
+pytest tests                            # 27 hand-checked tests
+python scripts/03_returns.py            # four return definitions
+python scripts/14_validate_methods.py   # selection value, Brinson, bootstrap
+python scripts/23_models_final.py       # model comparison (about 9 min)
+python scripts/25_paired_bootstrap.py   # paired monthly bootstrap
+python scripts/26_resolution_bias.py    # resolution-bias simulation
+\end{lstlisting}

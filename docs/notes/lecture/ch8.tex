@@ -1,0 +1,84 @@
+\chapter{코드 구조와 작업 방식}
+
+\section{저장소 지도}
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{@{}p{38mm}L@{}}\toprule
+경로 & 역할\\\midrule
+\ft{src/lc/config.py} & 경로 상수(데이터, 국채 CSV, 결과 폴더)\\
+\ft{src/lc/data.py} & 원본 읽기, 누수 컬럼 삭제, 라벨(\ft{bad}, \ft{resolved}) 만들기, 특성 101개\\
+\ft{src/lc/returns.py} & 현금흐름 복원, IRR, 네 가지 수익률, 국채 붙이기\\
+\ft{src/lc/asof.py} & 시점 학습 표본(\ft{known_at}, \ft{training_set}), LGD\\
+\ft{src/lc/models.py} & LightGBM 고정 파라미터와 학습 함수\\
+\ft{src/lc/evaluate.py} & 코호트 IRR, Sharpe, 요약 지표\\
+\ft{src/lc/missing.py} & 결측 유형 분류와 처리 방식 5종(\ft{MissingPolicy})\\
+\ft{src/lc/woe.py} & WOE 변환과 IV 표\\
+\ft{src/lc/features.py} & 엔지니어링 피처, out-of-fold 우편번호 인코딩\\
+\ft{src/lc/calibration.py}, \ft{raroc.py}, \ft{benchmarks.py} & 보정, RAROC, 비교 기준\\
+\ft{scripts/02_...}--\ft{26_...} & 단계별 실험. 번호 = 커밋 단계\\
+\ft{tests/} & 손계산 테스트 27개(\ft{pytest tests})\\
+\ft{results/} & 각 실험의 CSV와 로그\\
+\ft{docs/} & 결정 기록, 연구 노트, test 프로토콜, 이 노트\\\bottomrule
+\end{tabularx}
+\caption{저장소 구조.}
+\end{table}
+
+\section{핵심 코드 읽기}
+\subsection*{시점 학습 표본}
+\begin{lstlisting}
+def known_at(d, cutoff, lag=CHARGE_OFF_LAG):
+    """Loans whose outcome was settled by cutoff."""
+    age = months_to(d, cutoff)                 # months from issue to cutoff
+    settle = d['tau'].to_numpy() + np.where(d['bad'].to_numpy() == 1, lag, 0)
+    return (age > 0) & d['resolved'].to_numpy() & (settle <= age)
+\end{lstlisting}
+한 줄씩: \ft{age}는 기준일에 대출이 몇 개월 되었나. \ft{settle}은 결과가 확정되는 개월(정상은 마지막 납부, 부도는 +5). 기준일 전에 발행되었고(\ft{age > 0}), 지금은 끝났고(\ft{resolved}), 그 끝이 기준일 전에 확정되었으면(\ft{settle <= age}) 학습에 쓴다. 이 세 줄이 3장 그림의 A, B를 남기고 C, D를 빼는 일을 한다.
+
+\subsection*{코호트 IRR}
+\begin{lstlisting}
+def cohort_irr(d, approve, fee=0.01):
+    a = np.asarray(approve, bool)
+    rows = []
+    for ym, idx in d.groupby('ym').indices.items():   # each issue month
+        sel = idx[a[idx]]                              # approved loans of that month
+        tb = d['tb'].to_numpy()[idx].mean()            # treasury of that month
+        v = returns.pooled_irr(d.iloc[sel], fee=fee) if len(sel) else tb
+        rows.append((ym, v, tb, len(sel) / len(idx)))
+    return pd.DataFrame(rows, columns=['ym', 'irr', 'tb', 'approve_rate']).set_index('ym')
+\end{lstlisting}
+그 달에 하나도 승인하지 않으면 국채를 산 것으로 본다(\ft{v = tb}). 그래서 거절은 초과수익 0이다(\S6.1).
+
+\subsection*{기대수익 점수와 선별 곡선}
+\begin{lstlisting}
+p = model.predict_proba(X_eval)[:, 1]                      # default probability
+score = (1 - p) * ev['r'] - p * lgd - ev['tb']            # expected-return score
+QS = [0.1, 0.2, ..., 0.9]
+curve = [ (cohort_irr(ev, score >= np.quantile(score, 1 - q))
+           .eval('irr - tb').mean()) for q in QS ]          # approve top q
+sv = np.mean(np.array(curve) - random_curve)               # selection value
+\end{lstlisting}
+
+\subsection*{선형 모델 전처리(가용성 규칙)}
+\begin{lstlisting}
+avail = X_train.notna().mean()
+cols = avail[avail >= 0.5].index                 # 1) keep features >50% present in training
+lo, hi = X_train[cols].quantile(0.01), X_train[cols].quantile(0.99)
+X = X[cols].clip(lo, hi, axis=1)                  # 2) clip at training 1%/99%
+X = X.fillna(X_train[cols].median())              # 3) fill with training median
+\end{lstlisting}
+모든 기준값(분위, 중앙값)은 \textbf{학습 데이터에서만} 계산한다. 평가 데이터로 계산하면 그것도 누수다.
+
+\section{테스트}
+\ft{tests/}의 27개 테스트는 손으로 계산할 수 있는 작은 예로 함수를 확인한다. 예: 정상 상환 대출의 IRR이 약정 금리(월 복리)와 같은지, \ft{known_at}이 기준일 뒤 확정된 부도를 빼는지, 결측 처리 값이 학습 데이터에서만 오는지. 숫자 실험을 바꿀 때마다 \ft{pytest tests}를 돌린다.
+
+\section{작업 방식: 단계, 커밋, 기록}
+\begin{enumerate}[leftmargin=*]
+\item 질문과 판정 기준을 스크립트 맨 위에 쓴다.
+\item 실행하고 결과를 \ft{results/}에 저장한다.
+\item 비판한다(우연인가, 누수인가, 다른 설명은?). 필요하면 진단 실험을 한다(예: 24b).
+\item \ft{docs/decisions.md}(무엇을 왜 골랐나)와 \ft{docs/research_log.md}(주장, 실패, 정정, 가정, 엿보기)를 갱신한다.
+\item 한 단계 = 한 커밋. 실험은 브랜치에서 하고 main에는 바로 올리지 않는다.
+\end{enumerate}
+
+\begin{career}
+이 구조는 연구 재현성(reproducibility)의 기본형이다: 모듈화된 라이브러리 + 번호 붙은 실험 스크립트 + 결과 파일 + 결정 로그 + 테스트. ``노트북 하나에 다 했다''와 비교하면, 누가 어떤 숫자를 물어도 어느 커밋의 어느 스크립트에서 나왔는지 답할 수 있다.
+\end{career}

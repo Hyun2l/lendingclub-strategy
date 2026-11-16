@@ -1,0 +1,75 @@
+\chapter{과제와 데이터}
+
+\section{과제가 실제로 묻는 것}
+과제 문서는 ``Sharpe ratio를 최대로 만드는 대출 승인 전략''을 요구한다. 조교 답변에 따르면 Sharpe는 바꾸거나 다른 식을 써도 되고, accuracy는 중요하지 않으며, \textbf{과정과 논리 도출}이 평가의 중심이다. 그래서 질문을 이렇게 다시 쓴다.
+
+\begin{keybox}[이 프로젝트의 질문]
+투자자가 LendingClub(LC) 대출 중 무엇을 사야 하는가? 그리고 그 판단이 ``운이 아니라 정보 때문''이라는 것을 어떻게 보일 수 있는가?
+\Intuit{예측을 잘하는 대회가 아니라, 돈이 되는 고르기를 정직하게 증명하는 숙제다.}
+\end{keybox}
+
+질문이 두 부분이라는 점이 중요하다. 앞부분(무엇을 사나)은 모델과 규칙의 문제이고, 뒷부분(어떻게 보이나)은 평가와 검증의 문제다. 이 노트의 절반 이상이 뒷부분에 쓰이는 이유다.
+
+\section{LendingClub이라는 시장}
+LC는 2007년부터 2020년까지 운영된 미국의 P2P 대출 플랫폼이다. 돈을 빌리려는 사람이 신청하면 LC가 심사해 등급(A--G, 세부등급 A1--G5 35개)과 금리를 붙이고, 투자자는 그 대출 조각(note)을 산다. 대출은 무담보 개인 신용대출이고 만기는 36개월 또는 60개월이다. 2021년 2월 Radius Bank 인수를 마치며 은행이 되었고 P2P 투자 상품은 접었다.
+
+\begin{insight}[투자자 입장에서의 세 가지 위험]
+\begin{enumerate}[leftmargin=*]
+\item \textbf{부도(default)}: 갚다가 멈춘다. 원금 일부를 잃는다.
+\item \textbf{조기상환(prepayment)}: 일찍 다 갚는다. 원금은 돌아오지만 높은 이자를 받을 기간이 줄어든다.
+\item \textbf{재투자}: 매달 돌아오는 원리금을 다시 어딘가에 넣어야 한다. 그 수익률이 전체 성과를 바꾼다.
+\end{enumerate}
+\end{insight}
+
+LC가 매긴 금리는 이미 부도 위험의 가격이다. 그래서 ``부도가 적은 대출 고르기''는 정답이 아니다. 금리가 낮은 A등급만 고르면 부도는 적지만 버는 것도 적다. 이 긴장이 프로젝트 전체를 관통한다.
+
+\section{데이터 한눈에}
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{@{}lL@{}}\toprule
+항목 & 값\\\midrule
+공식 train & 1,755,294건 \ensuremath{\times} 141개 컬럼, 2007--2020년 발행\\
+결과 상태 & Fully Paid 약 90만, Current(진행 중) 약 62만, Charged Off 약 22만, 기타 소수\\
+종결 표본 & 결과가 확정된 대출 1,116,156건(LC 신용정책 미충족 대출 제외)\\
+모델 특성 & 승인 시점에 알 수 있는 기본 101개(\ft{src/lc/data.py}의 \ft{feature_columns})\\
+주 평가 표본 & 2013--2016년 발행 36개월 종결 대출, 발행월 48개\\
+공식 test & 조교 답변: 일주일 안에 배포, 상환 결과 포함, 진행 중 대출은 없을 것\\\bottomrule
+\end{tabularx}
+\caption{데이터 요약.}
+\end{table}
+
+\section{컬럼을 시점으로 나누기: Data leakage}
+141개 컬럼을 보면 가장 먼저 던질 질문은 하나다.
+
+\begin{keybox}[누수 판별 질문]
+``대출을 승인하던 날, 이 값을 알 수 있었나?''
+알 수 없었다면 그 컬럼은 학습에 쓰면 안 된다. 쓰면 \textbf{data leakage}다.
+\Intuit{시험 답안지를 보고 푼 모의고사 점수는 실력이 아니다.}
+\end{keybox}
+
+\begin{table}[H]\centering\small
+\begin{tabularx}{\linewidth}{@{}p{33mm}LL@{}}\toprule
+묶음 & 예 & 처리\\\midrule
+승인 시점 정보 & \ft{loan_amnt}, \ft{int_rate}, \ft{grade}, \ft{annual_inc}, \ft{dti}, \ft{fico_range_low}, \ft{emp_length}, \ft{addr_state} & 특성으로 사용\\
+상환 결과 & \ft{total_pymnt}, \ft{recoveries}, \ft{last_pymnt_d}, \ft{out_prncp} & 특성 금지, \textbf{수익 계산에만} 사용\\
+사후 갱신 & \ft{last_fico_range_high}, \ft{hardship_*}, \ft{settlement_*}, \ft{debt_settlement_flag} & 삭제(\ft{LEAK}, \ft{LEAK_PREFIX})\\
+식별, 설명 & \ft{id}, \ft{url}, \ft{desc}, \ft{title} & 삭제\\\bottomrule
+\end{tabularx}
+\caption{컬럼 묶음. 실제 목록은 \ft{src/lc/data.py}.}
+\end{table}
+
+\begin{warnbox}[미묘한 누수]
+\ft{last_fico_range_high}는 이름만 보면 신용점수지만, 대출 후 마지막으로 갱신된 점수다. 부도가 나면 점수가 떨어지므로 결과를 거의 그대로 알려 준다. 이런 컬럼 하나가 AUC를 0.9 넘게 올리는데, 그 점수는 아무 의미가 없다.
+\end{warnbox}
+
+\section{결과 라벨 만들기}
+\ft{data.parse}는 원본에 다음 열을 붙인다.
+\begin{itemize}[leftmargin=*]
+\item \ft{outcome}: Fully Paid, Charged Off 등 상태를 정리한 값. \ft{resolved}: 결과가 확정되었는가.
+\item \ft{bad}: 부도면 1. Charged Off와 Default를 부도로 본다.
+\item \ft{r}: 약정 금리(소수), \ft{term_m}: 만기 개월, \ft{tau}: 발행부터 마지막 납부까지 개월 수.
+\item \ft{policy_fail}: ``Does not meet the credit policy''로 표시된 옛 대출. 심사 기준이 달라 분석에서 뺀다.
+\end{itemize}
+
+\begin{career}
+``누수를 어떻게 막았나요?''는 면접 단골 질문이다. 답의 핵심은 목록이 아니라 \textbf{판별 기준}이다. ``각 컬럼에 대해 결정 시점에 관측 가능한지를 물었고, 결과 컬럼은 라벨과 수익 계산에만 쓰고 특성에서는 뺐다''라고 말하면 된다. 이 프로젝트에서는 한 단계 더 나아가, 컬럼뿐 아니라 \textbf{행(어떤 대출을 학습에 넣나)}도 시점을 지켰다(3장).
+\end{career}
