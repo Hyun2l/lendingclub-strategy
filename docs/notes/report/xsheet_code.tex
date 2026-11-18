@@ -1,0 +1,172 @@
+\chapter{코드 치트시트: 복사해서 쓰는 조각}
+모두 \ft{docs/notes/code/snippets.py}에 실행 가능한 형태로 있다. \ft{python snippets.py irr}처럼 하나씩 실행한다.
+\begingroup\setlist{nosep,leftmargin=*}\setlength{\columnsep}{6mm}\lstset{basicstyle=\ttfamily\scriptsize,numbers=none,aboveskip=3pt,belowskip=3pt}
+
+\begin{multicols}{2}\raggedright\small
+
+\Hd{0. 불러오기와 실행}
+\begin{lstlisting}
+import numpy as np
+import pandas as pd
+from scipy.optimize import brentq
+\end{lstlisting}
+\begin{lstlisting}[language=bash]
+conda activate cmapss
+python scripts/39_final_choice.py > results/39.log 2>&1
+\end{lstlisting}
+\ft{> 파일 2>&1}: 화면 출력과 오류를 함께 파일에 저장한다.
+
+\Hd{1. pandas 기본 동작}
+\begin{lstlisting}
+df = pd.read_csv('loans.csv')          # or pd.read_parquet
+df['bad'] = (df['status'] == 'Charged Off').astype(int)
+df['ym'] = pd.to_datetime(df['issue_d'], format='%b-%Y')
+df['r'] = pd.to_numeric(df['int_rate'].str.rstrip('%')) / 100
+m = (df['grade'] == 'A') | (df['r'] > 0.14)   # & | ~ with brackets
+sub = df[m]                                   # filter rows
+df.groupby('grade')['bad'].mean()             # rate per group
+idx = df.groupby('ym').indices                # {month: row positions}
+df = df.merge(tb, on=['ym', 'term_m'], how='left')   # VLOOKUP
+df = df.reset_index(drop=True)                # rows 0..n-1 again
+x = df['amt'].to_numpy(float)                 # fast numpy array
+\end{lstlisting}
+
+\Hd{2. numpy 기본 동작}
+\begin{lstlisting}
+np.where(bad == 1, 0.0, r)        # IF for whole array
+np.quantile(s, 0.7)               # 70th percentile
+s >= np.quantile(s, 1 - q)        # top q as True/False
+rng = np.random.default_rng(11)   # fixed seed = reproducible
+x.mean(); x.std(ddof=1)           # sample std
+X2d.mean(axis=1)                  # mean of each row
+\end{lstlisting}
+
+\Hd{3. 시점 학습 표본}
+\begin{lstlisting}
+def known_at(d, cutoff, lag=5):
+    c = pd.Timestamp(cutoff)
+    age = (c.year - d['ym'].dt.year) * 12 + c.month - d['ym'].dt.month
+    settle = d['tau'] + np.where(d['bad'] == 1, lag, 0)
+    return (age > 0) & d['resolved'] & (settle <= age)
+
+train = d[(d['ym'] < cutoff) & known_at(d, cutoff)]
+\end{lstlisting}
+
+\Hd{4. LightGBM 부도확률(seed 평균)}
+\begin{lstlisting}
+import lightgbm as lgb
+def fit_lgb(X, y, seed):
+    u = np.random.default_rng(seed).random(len(X)) < 0.15
+    m = lgb.LGBMClassifier(n_estimators=2000, learning_rate=0.05,
+            num_leaves=63, min_child_samples=200, subsample=0.8,
+            subsample_freq=1, colsample_bytree=0.6, reg_lambda=5,
+            random_state=seed, verbose=-1)
+    m.fit(X[~u], y[~u], eval_set=[(X[u], y[u])],
+          callbacks=[lgb.early_stopping(50, verbose=False)])
+    return m
+p = np.mean([fit_lgb(Xtr, ytr, s).predict_proba(Xte)[:, 1]
+             for s in [0, 1, 2]], axis=0)
+\end{lstlisting}
+\ft{[:, 1]} = 부도(1)일 확률 열. 빠뜨리면 두 열짜리 표가 된다.
+
+\Hd{5. 기대수익 점수와 LGD}
+\begin{lstlisting}
+b = train[train['bad'] == 1]
+lgd = 1 - (b['total_pymnt'] / b['funded_amnt']).mean()
+ev['s_er'] = (1 - p) * ev['r'] - p * lgd - ev['tb']
+\end{lstlisting}
+
+\Hd{6. IRR}
+\begin{lstlisting}
+def irr(cf):                       # cf[0] < 0, monthly
+    f = lambda m: (cf / (1 + m) ** np.arange(len(cf))).sum()
+    m = brentq(f, -0.95, 1.0)
+    return (1 + m) ** 12 - 1
+
+def annuity(P, rate, T):           # level monthly payment
+    g = rate / 12
+    return P * g / (1 - (1 + g) ** -T)
+
+inst = annuity(1000, 0.12, 36)                 # 33.21
+irr(np.r_[-1000, np.full(36, inst)])           # 0.1268
+irr(np.r_[-1000, np.full(36, inst) * 0.99])    # 1% fee: 0.1191
+\end{lstlisting}
+묶음 IRR: 대출들의 현금흐름 배열을 \textbf{먼저 더하고} \ft{irr}을 한 번.
+
+\Hd{7. 그룹마다 상위 $q$(동점 깨기)}
+\begin{lstlisting}
+def cut(score, groups, q):
+    a = np.zeros(len(score), bool)
+    for _, ix in pd.Series(groups).groupby(groups).indices.items():
+        s = score[ix]
+        a[ix] = s >= np.quantile(s, 1 - q)
+    return a
+
+jit = np.random.default_rng(11).random(len(s)) * 1e-6
+a = cut(s + jit, ym, 0.3)              # by month
+a = cut(s + jit, list(zip(ym, grade)), 0.3)   # month x grade
+print(a.mean())                        # check real share
+rand = cut(np.random.default_rng(500).random(len(s)), ym, 0.3)
+\end{lstlisting}
+
+\Hd{8. 발행월 포트폴리오 초과수익과 Sharpe}
+\begin{lstlisting}
+def port_series(a, hurdle):
+    out = []
+    for m_, ix in sorted(df.groupby('ym').indices.items()):
+        sel = ix[a[ix]]
+        r = pooled_irr(df.iloc[sel]) - hurdle[ix].mean() if len(sel) else 0.0
+        out.append(amt[sel].sum() / amt[ix].sum() * r)
+    return np.array(out)
+
+sharpe = lambda x: x.mean(axis=-1) / x.std(axis=-1, ddof=1)
+\end{lstlisting}
+
+\Hd{9. 이동 블록 부트스트랩}
+\begin{lstlisting}
+def block_index(n, block=6, B=2000, seed=2026):
+    st = np.random.default_rng(seed).integers(
+        0, n - block + 1, size=(B, int(np.ceil(n / block))))
+    return np.concatenate([np.arange(block)[None, :] + st[:, [j]]
+        for j in range(st.shape[1])], axis=1)[:, :n]
+
+BIX = block_index(48)
+se = sharpe(x[BIX]).std(ddof=1)                # SE of Sharpe
+d = sharpe(x[BIX]) - sharpe(y[BIX])            # paired difference
+lo, hi = np.quantile(d, [0.05, 0.95])          # 90% interval
+\end{lstlisting}
+
+\Hd{10. 1-SE 규칙}
+\begin{lstlisting}
+best = C.loc[C['Sharpe'].idxmax()]
+ok = C[C['Sharpe'] >= best['Sharpe'] - best['SE']]
+pick = ok.sort_values(['q', 'Sharpe'], ascending=[False, False]).iloc[0]
+\end{lstlisting}
+
+\Hd{11. 파레토 지배}
+\begin{lstlisting}
+def dominated(mean, std):
+    m, s = np.asarray(mean), np.asarray(std)
+    return np.array([bool(((m >= m[i]) & (s <= s[i])
+        & ((m > m[i]) | (s < s[i]))).any()) for i in range(len(m))])
+\end{lstlisting}
+
+\Hd{12. 결과 저장과 표 보기}
+\begin{lstlisting}
+T = pd.DataFrame(rows)                       # rows = list of dicts
+T.round(4).to_csv('results/x.csv', index=False)
+print(T.pivot(index='q', columns='rule', values='Sharpe').round(2))
+\end{lstlisting}
+\ft{pivot}: 긴 표를 엑셀 피벗처럼 행 \ensuremath{\times} 열로 펼친다.
+
+\Hd{13. 자주 나는 오류}
+\begin{tabularx}{\linewidth}{@{}p{42mm}X@{}}\toprule
+\ft{KeyError} & 열 이름 오타. \ft{print(df.columns)}\\
+\ft{ValueError} (truth value) & \ft{and}/\ft{or} 대신 \texttt{\&}/\texttt{|}, 조건마다 괄호\\
+\ft{SettingWithCopyWarning} & 거른 표에 쓰기 전 \ft{.copy()}\\
+\ft{IndentationError} & 공백 4칸으로 통일\\
+\ft{brentq} 부호 오류 & 범위를 \ft{(-0.95, 1.0)}으로 넓힘\\\bottomrule
+\end{tabularx}
+\end{multicols}
+
+\endgroup
