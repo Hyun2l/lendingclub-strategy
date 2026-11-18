@@ -10,26 +10,7 @@
 \end{keybox}
 
 \section{흐름: 고르는 날과 채점하는 날}
-\begin{figure}[H]\centering
-\begin{tikzpicture}[x=1mm,y=1mm,box/.style={draw=black!70,rounded corners=1.2mm,align=center,font=\footnotesize,minimum height=12mm,text width=32mm,fill=white,execute at begin node={\XeTeXlinebreakskip=0pt\relax}},ar/.style={-{Stealth},black!65}]
-\node[box] (a) at (0,0) {그 달 새 대출\\(36개월 만기)};
-\node[box] (b) at (42,0) {부도확률 $p$\\시점 학습 LightGBM\\(그날 알던 정보만)};
-\node[box] (c) at (84,0) {기대수익 점수\\$s=(1-p)r-p\cdot\mathrm{LGD}$\\$-$ 국채 금리};
-\node[box,line width=0.9pt] (d) at (126,0) {$s$ 높은 순으로\\예산만큼 구매\\남는 돈은 국채};
-\draw[ar] (a)--(b); \draw[ar] (b)--(c); \draw[ar] (c)--(d);
-\draw[dashed,black!35] (-18,-13)--(144,-13);
-\node[font=\scriptsize\itshape,black!60,anchor=south west] at (-18,-13) {위: 승인하는 날(결과를 모름)};
-\node[font=\scriptsize\itshape,black!60,anchor=north west] at (-18,-13) {아래: 대출이 끝난 뒤(실제 결과로 채점, $s$는 쓰지 않음)};
-\node[box] (e) at (126,-27) {우리가 산 묶음\\실제 현금흐름\\\ensuremath{\to} 코호트 IRR};
-\node[box] (f) at (126,-47) {같은 양 무작위(10회)\\실제 현금흐름\\\ensuremath{\to} 코호트 IRR};
-\node[box,line width=0.9pt] (g) at (84,-37) {선별 가치\\$=$ 우리 IRR $-$ 무작위 IRR\\(국채는 양쪽에서 지워짐)};
-\node[box] (h) at (42,-37) {48개 발행월 평균\\예산 10--90\%\\블록 부트스트랩 구간};
-\node[box,line width=0.9pt] (i) at (0,-27) {주 판정(H2)\\95\% 구간 하한 $>0$\\\ensuremath{\to} 제안 유지};
-\node[box,dashed] (j) at (0,-47) {보조 지표\\포트폴리오 Sharpe\\(평균 \ensuremath{\div} 흔들림)};
-\draw[ar] (d)--(e); \draw[ar] (e)--(g); \draw[ar] (f)--(g); \draw[ar] (g)--(h); \draw[ar] (h)--(i); \draw[ar,dashed] (h)--(j);
-\end{tikzpicture}
-\caption{제안의 흐름. 위 줄은 승인하는 날 하는 일, 아래 줄은 대출이 끝난 뒤 채점하는 일이다. 코호트 IRR은 빌려준 돈(0개월), 월 납입금, 마지막 달의 조기상환 일시금이나 부도 후 회수금을 묶음 전체로 더해 구하고, 받은 돈에서 수수료 1\%를 뗀다(2장).}
-\end{figure}
+\input{report/rflow}
 
 \begin{itemize}[leftmargin=*]
 \item \textbf{$s$는 줄 세우기에만 쓴다.} 결과는 실제로 받은 돈으로만 잰다. 예측이 틀렸다면 실제 IRR이 낮게 나와 그대로 드러난다.
