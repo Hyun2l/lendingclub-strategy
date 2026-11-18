@@ -17,7 +17,7 @@
 \end{itemize}
 
 \section{test 규칙(test 전에 고정, git 태그)}
-v1은 그대로 실행하고, v2는 30--34단계 후보를, v2.1은 발행월 컷과 허들 민감도를, v2.2는 최종 제안 선택 규칙을, v2.2.1은 파레토 보고를 더했다. \textbf{v2.3은 최종 제안을 기대수익 순(승인비율 무관)으로 바꾸고 주 판정을 v1의 H2로 되돌렸다}(정의 불변, 과제가 Sharpe를 요구하지 않음을 확인한 뒤, test 전). 태그는 \ft{test-protocol-v1}--\ft{test-protocol-v2.3}이다. 실행은 \ft{python scripts/40_test_evaluate_v2_2.py <test 파일>} 한 번이다.
+v1은 그대로 실행하고, v2는 30--34단계 후보를, v2.1은 발행월 컷과 허들 민감도를, v2.2는 최종 제안 선택 규칙을, v2.2.1은 파레토 보고를 더했다. \textbf{v2.3은 최종 제안을 기대수익 순(승인비율 무관)으로 바꾸고 주 판정을 v1의 H2로 되돌렸다}(정의 불변, 과제가 Sharpe를 요구하지 않음을 확인한 뒤, test 전). v2.3.1은 판정을 바꾸지 않고 결과별 보고 문장, 실패 원인 점검표, 추가 후보 등록 규칙(마감 2026-11-22)만 더했다(9장). 태그는 \ft{test-protocol-v1}--\ft{test-protocol-v2.3.1}이다. 실행은 \ft{python scripts/40_test_evaluate_v2_2.py <test 파일>} 한 번이다.
 
 \begin{table}[H]\centering\small
 \begin{tabularx}{\linewidth}{@{}p{45mm}L@{}}\toprule
@@ -46,6 +46,7 @@ H13 지배 관계(보고, v2.2.1) & 같은 비율의 V1·\allowbreak{}V2·\allow
 \item H7이 실패하면 ``train에서 보고 고른 규칙은 과대평가된다''를 그대로 보고한다.
 \item H12, H13에서 다른 후보나 V3가 더 좋아도 제안을 바꾸지 않는다. 차이를 그대로 보고한다.
 \item (v2.3) H2가 통과해도 ``모든 승인비율에서 덜 흔들린다''고 쓰지 않는다. Sharpe는 승인비율별 구간으로만 말하고, 큰 승인비율의 이점이 작다는 점을 평균과 함께 쓴다.
+\item (v2.3.1) H2가 실패하면 미리 적은 원인 점검표로 원인을 \textbf{가설로만} 보고하고, 원인 분석으로 판정을 뒤집지 않는다. H10이 통과해도 부도확률 순을 새 제안으로 삼지 않는다.
 \end{enumerate}
 
 \begin{warnbox}[H2 통과가 뜻하는 것]
