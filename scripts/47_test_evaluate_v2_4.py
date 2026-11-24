@@ -94,3 +94,61 @@ md4 = ['', '# v2.4 주 판정(교수님식 건별 Sharpe)', f'최종 제안: {nm
 with open(OUT / 'summary.md', 'a') as fh:
     fh.write('\n'.join(md4) + '\n')
 print('\n'.join(md4[:6]))
+
+# ===================== v2.4.1 (docs/test_protocol_v2_4_1.md) =====================
+# H17: V2 40% - 금리 낮은 순 40% 건별 Sharpe, 95% 블록 부트스트랩 하한 > 0 (2차 판정, 제안 불변)
+# 보고: 금리 낮은 순, 세부등급 좋은 순, V5 mu/E[x^2](모델 p, 재보정 p) x 10~90%, V5 자기일관 기준선
+r_e = e['r'].to_numpy(float)
+sg_e = pd.Categorical(e['sub_grade'].astype(str)).codes.astype(float)
+p_e = e['pdx'].to_numpy(float)
+yr_e = e['issue_year'].to_numpy()
+TRB = {Y: asof.training_set(tr_all, f'{Y}-01-01')['bad'].mean() for Y in np.unique(yr_e)}
+p_cal_e = p_e.copy()
+for Y in np.unique(yr_e):
+    p_cal_e[yr_e == Y] = np.clip(p_e[yr_e == Y] * TRB[Y] / p_e[yr_e == Y].mean(), 0, 0.99)
+
+
+def mom(p):
+    mu = (1 - p) * r_e - p * lgd_e - tb_e
+    return mu, (1 - p) * (r_e - tb_e) ** 2 + p * (lgd_e + tb_e) ** 2
+
+
+S41 = {'금리 낮은 순': -r_e + jit24, '세부등급 좋은 순': -sg_e + jit24}
+for nm_, p_ in [('V5 mu/E[x2] (모델 p)', p_e), ('V5 mu/E[x2] (재보정 p)', p_cal_e)]:
+    mu_, e2_ = mom(p_)
+    S41[nm_] = mu_ / e2_ + jit24
+rows41 = []
+for nm_, sc_ in S41.items():
+    for q in Q24:
+        a_ = by_month_top(e, sc_, q)
+        A24[(nm_, q)] = a_
+        rows41.append({'전략': nm_, '승인비율': q, '건별 Sharpe': evaluate.loan_sharpe(X24, a_)})
+for nm_, p_ in [('V5 자기일관 (모델 p)', p_e), ('V5 자기일관 (재보정 p)', p_cal_e)]:
+    mu_, e2_ = mom(p_)
+    c_ = 0.0
+    for _ in range(50):
+        a_ = mu_ / e2_ > c_
+        c_ = mu_[a_].sum() / (2 * e2_[a_].sum())
+    rows41.append({'전략': nm_, '승인비율': a_.mean(), '건별 Sharpe': evaluate.loan_sharpe(X24, a_)})
+C41 = pd.DataFrame(rows41)
+
+a_rl = A24[('금리 낮은 순', 0.4)]
+s_rl = evaluate.loan_sharpe(X24, a_rl)
+a_v2 = A24[('V2 부도확률 낮은 순', 0.4)]
+s_v2 = evaluate.loan_sharpe(X24, a_v2)
+lo17, hi17 = np.quantile(boot24(a_v2) - boot24(a_rl), [0.025, 0.975])
+V41 = pd.DataFrame([
+    ('H17 모델 기여(2차 판정): V2 40% - 금리 낮은 순 40% 건별 Sharpe 95% 하한 > 0', bool(lo17 > 0),
+     f'{s_v2:.4f} - {s_rl:.4f} = {s_v2 - s_rl:.4f} ({lo17:.4f}~{hi17:.4f})'),
+], columns=['가설', '지지', '값'])
+h14 = bool(lo14 > 0)
+sentence = ('제안 철회. 원인은 v2.3.1 점검표로 가설로만 보고' if not h14 else
+            '모델로 고른 V2가 무작위와 금리표 모두보다 건별 Sharpe가 높았다' if lo17 > 0 else
+            '무작위보다는 높았지만 금리표로도 비슷하게 얻을 수 있었다. 모델의 기여는 확인하지 못했다')
+C41.round(5).to_csv(OUT / 'V8_extensions_v2_4_1.csv', index=False)
+V41.to_csv(OUT / 'verdict_v2_4_1.csv', index=False)
+md41 = ['', '# v2.4.1 보완', md_table(V41), '', f'보고 문장(미리 고정): {sentence}', '',
+        '## 보고 항목: 모델 없는 기준선, V5', md_table(C41)]
+with open(OUT / 'summary.md', 'a') as fh:
+    fh.write('\n'.join(md41) + '\n')
+print('\n'.join(md41[:5]))
