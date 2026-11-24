@@ -12,6 +12,19 @@ def loan_sharpe(excess, approve):
     return x.mean() / s if s > 0 else 0.0
 
 
+def loan_sigma(p, r, lgd):
+    """대출 한 건의 수익을 '정상이면 r, 부도면 -LGD'인 2점 분포로 본 표준편차."""
+    p = np.asarray(p, float)
+    return np.sqrt(p * (1 - p)) * (np.asarray(r, float) + np.asarray(lgd, float))
+
+
+def risk_adjusted_score(p, r, lgd, tb):
+    """V4 점수: 기대 초과수익 s = (1-p)r - p*LGD - tb 를 loan_sigma로 나눈 값(대출 한 건의 Sharpe 근사)."""
+    p = np.asarray(p, float)
+    s = (1 - p) * np.asarray(r, float) - p * np.asarray(lgd, float) - np.asarray(tb, float)
+    return s / np.maximum(loan_sigma(p, r, lgd), 1e-9)
+
+
 def cohort_irr(d, approve, fee=0.01):
     """발행월별로 승인 대출을 한 포트폴리오로 묶은 생애 IRR과 그 달의 국채 수익률."""
     a = np.asarray(approve, bool)
