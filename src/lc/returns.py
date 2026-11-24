@@ -94,6 +94,33 @@ def irr(cf):
     return (1 + m) ** 12 - 1
 
 
+def loan_irr(d, fee=0.0, iters=200):
+    """대출 한 건씩의 연환산 IRR(벡터화). 현금흐름은 cashflows와 같은 근사:
+    0개월 -P, 1..kf개월 납입금, max(n, kf)개월 일시금 rem. 받은 돈에서 fee를 뗀다.
+    월 수익률을 이분법으로 [-0.99, 1.0]에서 푼다(받은 돈이 모두 양수라 현재가치는 단조 감소)."""
+    kf, rem, n = schedule(d)
+    n = np.minimum(np.maximum(n, kf), H - 1)
+    kf = np.minimum(kf, H - 1)
+    P = d['funded_amnt'].to_numpy(float)
+    inst = d['installment'].to_numpy(float) * (1 - fee)
+    rem = rem * (1 - fee)
+
+    def pv(m):
+        g = 1 + m
+        ann = np.where(np.abs(m) < 1e-12, kf, (1 - g ** (-kf.astype(float))) / np.where(np.abs(m) < 1e-12, 1.0, m))
+        return -P + inst * ann + rem * g ** (-n.astype(float))
+
+    lo = np.full(len(P), -0.99)
+    hi = np.full(len(P), 1.0)
+    for _ in range(iters):
+        mid = (lo + hi) / 2
+        pos = pv(mid) > 0
+        lo = np.where(pos, mid, lo)
+        hi = np.where(pos, hi, mid)
+    m = (lo + hi) / 2
+    return pd.Series((1 + m) ** 12 - 1, index=d.index)
+
+
 def pooled_irr(d, weight=None, fee=0.0):
     """여러 대출을 한 포트폴리오로 묶은 생애 IRR."""
     return irr(cashflows(d, weight, fee))

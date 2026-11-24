@@ -23,3 +23,12 @@ results/test*/approval_list_*.csv
 docs/notes/*.log
 docs/notes/neuron-style/*.pdf
 catboost_info/
+
+# 문서 생성용 LaTeX 원본·스타일·폰트(로컬에만 둔다, PDF만 올림)
+docs/notes/**/*.tex
+docs/notes/*.tex
+docs/notes/fonts/
+docs/notes/neuron-style/
+docs/notes/code/
+docs/notes/lecture/
+docs/notes/report/

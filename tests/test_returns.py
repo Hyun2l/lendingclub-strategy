@@ -52,3 +52,21 @@ def test_default_irr_matches_hand_calculation():
 def test_fee_lowers_irr():
     d = loan(T * INST, T)
     assert returns.pooled_irr(d, fee=0.01) < TARGET
+
+
+def test_loan_irr_matches_pooled_irr_per_loan():
+    # 정상 상환, 조기상환, 부도(10회 납입 + 15개월째 회수금) 세 건을 한 번에 풀고, 한 건씩 pooled_irr와 대조
+    d = pd.concat([loan(T * INST, T), loan(12 * INST + bal(12), 12), loan(10 * INST + 50, 15, bad=1)], ignore_index=True)
+    got = returns.loan_irr(d, fee=0.01).to_numpy()
+    want = [returns.pooled_irr(d.iloc[[i]], fee=0.01) for i in range(3)]
+    assert got == pytest.approx(want, abs=1e-6)
+    assert returns.loan_irr(d.iloc[[0]]).iloc[0] == pytest.approx(TARGET, abs=1e-6)
+
+
+def test_loan_irr_default_hand_cashflow():
+    # 10회 납입 후 회수금 없이 부도: 현금흐름 -1000, 1..10개월 INST를 손으로 적은 IRR과 같아야 한다
+    d = loan(10 * INST, 10, bad=1)
+    cf = np.zeros(11)
+    cf[0], cf[1:] = -P, INST
+    assert returns.loan_irr(d).iloc[0] == pytest.approx(returns.irr(cf), abs=1e-6)
+    assert returns.loan_irr(d).iloc[0] < -0.8

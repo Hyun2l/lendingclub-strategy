@@ -1,0 +1,136 @@
+모델,전략,승인비율,건별 Sharpe
+LightGBM 기본,V1 기대수익 순,0.1,0.04947
+LightGBM 기본,V1 기대수익 순,0.2,0.06532
+LightGBM 기본,V1 기대수익 순,0.3,0.0783
+LightGBM 기본,V1 기대수익 순,0.4,0.0883
+LightGBM 기본,V1 기대수익 순,0.5,0.09538
+LightGBM 기본,V1 기대수익 순,0.6,0.10106
+LightGBM 기본,V1 기대수익 순,0.7,0.10035
+LightGBM 기본,V1 기대수익 순,0.8,0.09626
+LightGBM 기본,V1 기대수익 순,0.9,0.08454
+LightGBM 기본,V2 부도확률 낮은 순,0.1,0.09054
+LightGBM 기본,V2 부도확률 낮은 순,0.2,0.11172
+LightGBM 기본,V2 부도확률 낮은 순,0.3,0.12208
+LightGBM 기본,V2 부도확률 낮은 순,0.4,0.1243
+LightGBM 기본,V2 부도확률 낮은 순,0.5,0.12204
+LightGBM 기본,V2 부도확률 낮은 순,0.6,0.11857
+LightGBM 기본,V2 부도확률 낮은 순,0.7,0.11295
+LightGBM 기본,V2 부도확률 낮은 순,0.8,0.1028
+LightGBM 기본,V2 부도확률 낮은 순,0.9,0.08734
+LightGBM 기본,V4 위험조정 순,0.1,0.07412
+LightGBM 기본,V4 위험조정 순,0.2,0.09025
+LightGBM 기본,V4 위험조정 순,0.3,0.09932
+LightGBM 기본,V4 위험조정 순,0.4,0.10643
+LightGBM 기본,V4 위험조정 순,0.5,0.10907
+LightGBM 기본,V4 위험조정 순,0.6,0.10818
+LightGBM 기본,V4 위험조정 순,0.7,0.10335
+LightGBM 기본,V4 위험조정 순,0.8,0.09657
+LightGBM 기본,V4 위험조정 순,0.9,0.08369
+XGBoost,V1 기대수익 순,0.1,0.04864
+XGBoost,V1 기대수익 순,0.2,0.06444
+XGBoost,V1 기대수익 순,0.3,0.07657
+XGBoost,V1 기대수익 순,0.4,0.08652
+XGBoost,V1 기대수익 순,0.5,0.09478
+XGBoost,V1 기대수익 순,0.6,0.0989
+XGBoost,V1 기대수익 순,0.7,0.10051
+XGBoost,V1 기대수익 순,0.8,0.09564
+XGBoost,V1 기대수익 순,0.9,0.08404
+XGBoost,V2 부도확률 낮은 순,0.1,0.09163
+XGBoost,V2 부도확률 낮은 순,0.2,0.11386
+XGBoost,V2 부도확률 낮은 순,0.3,0.12392
+XGBoost,V2 부도확률 낮은 순,0.4,0.12558
+XGBoost,V2 부도확률 낮은 순,0.5,0.12263
+XGBoost,V2 부도확률 낮은 순,0.6,0.11912
+XGBoost,V2 부도확률 낮은 순,0.7,0.11342
+XGBoost,V2 부도확률 낮은 순,0.8,0.10337
+XGBoost,V2 부도확률 낮은 순,0.9,0.08746
+XGBoost,V4 위험조정 순,0.1,0.07015
+XGBoost,V4 위험조정 순,0.2,0.08845
+XGBoost,V4 위험조정 순,0.3,0.09843
+XGBoost,V4 위험조정 순,0.4,0.10491
+XGBoost,V4 위험조정 순,0.5,0.10788
+XGBoost,V4 위험조정 순,0.6,0.10689
+XGBoost,V4 위험조정 순,0.7,0.1035
+XGBoost,V4 위험조정 순,0.8,0.09614
+XGBoost,V4 위험조정 순,0.9,0.08333
+RandomForest,V1 기대수익 순,0.1,0.0539
+RandomForest,V1 기대수익 순,0.2,0.06738
+RandomForest,V1 기대수익 순,0.3,0.07775
+RandomForest,V1 기대수익 순,0.4,0.08403
+RandomForest,V1 기대수익 순,0.5,0.08918
+RandomForest,V1 기대수익 순,0.6,0.09033
+RandomForest,V1 기대수익 순,0.7,0.0888
+RandomForest,V1 기대수익 순,0.8,0.08491
+RandomForest,V1 기대수익 순,0.9,0.07816
+RandomForest,V2 부도확률 낮은 순,0.1,0.08578
+RandomForest,V2 부도확률 낮은 순,0.2,0.10305
+RandomForest,V2 부도확률 낮은 순,0.3,0.11235
+RandomForest,V2 부도확률 낮은 순,0.4,0.11565
+RandomForest,V2 부도확률 낮은 순,0.5,0.11456
+RandomForest,V2 부도확률 낮은 순,0.6,0.11335
+RandomForest,V2 부도확률 낮은 순,0.7,0.10636
+RandomForest,V2 부도확률 낮은 순,0.8,0.09653
+RandomForest,V2 부도확률 낮은 순,0.9,0.08289
+RandomForest,V4 위험조정 순,0.1,0.07104
+RandomForest,V4 위험조정 순,0.2,0.08366
+RandomForest,V4 위험조정 순,0.3,0.09065
+RandomForest,V4 위험조정 순,0.4,0.09465
+RandomForest,V4 위험조정 순,0.5,0.09533
+RandomForest,V4 위험조정 순,0.6,0.0935
+RandomForest,V4 위험조정 순,0.7,0.08908
+RandomForest,V4 위험조정 순,0.8,0.08393
+RandomForest,V4 위험조정 순,0.9,0.07634
+HistGradientBoosting,V1 기대수익 순,0.1,0.02212
+HistGradientBoosting,V1 기대수익 순,0.2,0.03102
+HistGradientBoosting,V1 기대수익 순,0.3,0.04081
+HistGradientBoosting,V1 기대수익 순,0.4,0.04884
+HistGradientBoosting,V1 기대수익 순,0.5,0.05573
+HistGradientBoosting,V1 기대수익 순,0.6,0.06116
+HistGradientBoosting,V1 기대수익 순,0.7,0.06496
+HistGradientBoosting,V1 기대수익 순,0.8,0.06863
+HistGradientBoosting,V1 기대수익 순,0.9,0.06971
+HistGradientBoosting,V2 부도확률 낮은 순,0.1,0.07803
+HistGradientBoosting,V2 부도확률 낮은 순,0.2,0.09952
+HistGradientBoosting,V2 부도확률 낮은 순,0.3,0.10907
+HistGradientBoosting,V2 부도확률 낮은 순,0.4,0.11389
+HistGradientBoosting,V2 부도확률 낮은 순,0.5,0.11555
+HistGradientBoosting,V2 부도확률 낮은 순,0.6,0.11332
+HistGradientBoosting,V2 부도확률 낮은 순,0.7,0.10622
+HistGradientBoosting,V2 부도확률 낮은 순,0.8,0.09881
+HistGradientBoosting,V2 부도확률 낮은 순,0.9,0.08576
+HistGradientBoosting,V4 위험조정 순,0.1,0.05824
+HistGradientBoosting,V4 위험조정 순,0.2,0.07543
+HistGradientBoosting,V4 위험조정 순,0.3,0.08424
+HistGradientBoosting,V4 위험조정 순,0.4,0.09151
+HistGradientBoosting,V4 위험조정 순,0.5,0.0949
+HistGradientBoosting,V4 위험조정 순,0.6,0.09631
+HistGradientBoosting,V4 위험조정 순,0.7,0.09394
+HistGradientBoosting,V4 위험조정 순,0.8,0.08995
+HistGradientBoosting,V4 위험조정 순,0.9,0.08057
+L2 로지스틱,V1 기대수익 순,0.1,0.03622
+L2 로지스틱,V1 기대수익 순,0.2,0.04982
+L2 로지스틱,V1 기대수익 순,0.3,0.06077
+L2 로지스틱,V1 기대수익 순,0.4,0.07148
+L2 로지스틱,V1 기대수익 순,0.5,0.07989
+L2 로지스틱,V1 기대수익 순,0.6,0.08572
+L2 로지스틱,V1 기대수익 순,0.7,0.08854
+L2 로지스틱,V1 기대수익 순,0.8,0.08634
+L2 로지스틱,V1 기대수익 순,0.9,0.07906
+L2 로지스틱,V2 부도확률 낮은 순,0.1,0.0754
+L2 로지스틱,V2 부도확률 낮은 순,0.2,0.09277
+L2 로지스틱,V2 부도확률 낮은 순,0.3,0.10325
+L2 로지스틱,V2 부도확률 낮은 순,0.4,0.10618
+L2 로지스틱,V2 부도확률 낮은 순,0.5,0.10806
+L2 로지스틱,V2 부도확률 낮은 순,0.6,0.10669
+L2 로지스틱,V2 부도확률 낮은 순,0.7,0.10238
+L2 로지스틱,V2 부도확률 낮은 순,0.8,0.09472
+L2 로지스틱,V2 부도확률 낮은 순,0.9,0.08239
+L2 로지스틱,V4 위험조정 순,0.1,0.05705
+L2 로지스틱,V4 위험조정 순,0.2,0.07227
+L2 로지스틱,V4 위험조정 순,0.3,0.08243
+L2 로지스틱,V4 위험조정 순,0.4,0.08754
+L2 로지스틱,V4 위험조정 순,0.5,0.09185
+L2 로지스틱,V4 위험조정 순,0.6,0.09331
+L2 로지스틱,V4 위험조정 순,0.7,0.09148
+L2 로지스틱,V4 위험조정 순,0.8,0.08658
+L2 로지스틱,V4 위험조정 순,0.9,0.07823
